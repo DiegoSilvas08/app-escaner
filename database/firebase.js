@@ -6,7 +6,7 @@ import "firebase/compat/storage"; // Importa Firebase Storage
 
 // Configuración de Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyAipLqok2req48qEHZS9jRTronKW24Rc-w",
+    apiKey: "AIzaSyCNFo4XcwMrXwjf05OsTEW4l44lEQBk83U",
     authDomain: "escaner-581ad.firebaseapp.com",
     projectId: "escaner-581ad",
     storageBucket: "escaner-581ad.firebasestorage.app",

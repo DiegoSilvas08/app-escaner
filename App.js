@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View, PermissionsAndroid, Platform, Alert } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import firebase from './database/firebase'; // Importa firebase como un objeto
+import { FirebaseModelDownloader, DownloadType, CustomModelDownloadConditions } from '@react-native-firebase/ml';
 import LoginScreen from './screens/LoginScreen';
 import HomeScreen from './screens/HomeScreen';
 import ScanScreen from './screens/ScanScreen';
@@ -18,6 +19,7 @@ const Stack = createStackNavigator();
 function App() {
   const [loading, setLoading] = React.useState(true); // Estado para manejar la carga inicial
   const [user, setUser] = React.useState(null); // Estado para almacenar el usuario autenticado
+  const [modelLoaded, setModelLoaded] = React.useState(false); // Estado para manejar la carga del modelo ML
 
   // Verificar permisos de cámara en Android e iOS
   const requestCameraPermission = async () => {
@@ -63,6 +65,22 @@ function App() {
 
     // Solicitar permisos de cámara al cargar la aplicación
     requestCameraPermission();
+
+    // Configurar y descargar el modelo ML
+    const conditions = new CustomModelDownloadConditions.Builder()
+      .requireWifi()
+      .build();
+
+    FirebaseModelDownloader.getInstance()
+      .getModel("calificador", DownloadType.LOCAL_MODEL, conditions)
+      .addOnSuccessListener(model => {
+        setModelLoaded(true);
+        console.log('Modelo ML descargado exitosamente');
+      })
+      .addOnFailureListener(error => {
+        console.error('Error al descargar el modelo ML:', error);
+        Alert.alert('Error', 'No se pudo descargar el modelo ML. La aplicación puede funcionar con limitaciones.');
+      });
 
     return unsubscribe; // Limpia la suscripción al desmontar el componente
   }, []);
