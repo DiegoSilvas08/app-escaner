@@ -10,7 +10,8 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
-import { Calendar } from "react-native-calendars";
+import { Book1, DocumentText, Calendar as CalendarIcon } from 'iconsax-react-native';
+import { Calendar as CalendarComponent } from "react-native-calendars";
 import firebase from "../database/firebase"; // Importa firebase
 
 const { db, firebase: firebaseInstance } = firebase; // Extrae db y firebase del objeto exportado
@@ -56,7 +57,7 @@ const ScheduleExamScreen = (props) => {
     <ScrollView style={styles.container}>
       {/* Campo para el nombre del examen */}
       <View style={styles.inputGroup}>
-        <Text style={styles.icon}>📚</Text> {/* Emoji como ícono */}
+        <Book1 size={24} color="#007BFF" variant="Bold" />
         <TextInput
           style={styles.input}
           placeholder="Nombre del Examen"
@@ -68,7 +69,7 @@ const ScheduleExamScreen = (props) => {
 
       {/* Campo para el número de preguntas */}
       <View style={styles.inputGroup}>
-        <Text style={styles.icon}>📝</Text> {/* Emoji como ícono */}
+        <DocumentText size={24} color="#007BFF" variant="Bold" />
         <TextInput
           style={styles.input}
           placeholder="Número de Preguntas"
@@ -81,10 +82,10 @@ const ScheduleExamScreen = (props) => {
 
       {/* Calendario para seleccionar la fecha */}
       <View style={styles.inputGroup}>
-        <Text style={styles.icon}>📅</Text> {/* Emoji como ícono */}
+        <CalendarIcon size={24} color="#007BFF" variant="Bold" />
         <Text style={styles.label}>Fecha del Examen:</Text>
       </View>
-      <Calendar
+      <CalendarComponent
         onDayPress={handleDateSelect}
         markedDates={{
           [selectedDate]: { selected: true, selectedColor: 'blue' },

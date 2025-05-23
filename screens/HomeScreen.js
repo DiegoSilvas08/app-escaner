@@ -4,9 +4,10 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  ImageBackground,
+  Image,
   Alert,
 } from 'react-native';
+import { Camera, Chart2, Calendar, DocumentText } from 'iconsax-react-native';
 
 const HomeScreen = ({ navigation }) => {
   // Función para manejar el cierre de sesión
@@ -34,13 +35,8 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header con la imagen header-ith.jpg */}
-      <ImageBackground
-        source={require('../assets/header-ith.png')} // Ajusta la ruta de la imagen
-        style={styles.header}
-        resizeMode="cover"
-      >
-      </ImageBackground>
+      {/* Header con imagen estirada */}
+      <Image source={require('../assets/ith_header.png')} style={styles.headerImage} />
 
       {/* Texto "BIENVENIDO" */}
       <Text style={styles.welcomeText}>BIENVENIDO</Text>
@@ -55,7 +51,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Scan')} // Navegar a ScanScreen
           >
             <Text style={styles.textAbove}>Iniciar</Text>
-            <Text style={styles.emoji}>📷</Text>
+            <Camera size={40} color="#FFF" variant="Bold" />
             <Text style={styles.textBelow}>Escaneo</Text>
           </TouchableOpacity>
 
@@ -65,7 +61,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('Grades')} // Navegar a GradesScreen
           >
             <Text style={styles.textAbove}>Ver</Text>
-            <Text style={styles.emoji}>📊</Text>
+            <Chart2 size={40} color="#FFF" variant="Bold" />
             <Text style={styles.textBelow}>Calificaciones</Text>
           </TouchableOpacity>
         </View>
@@ -78,7 +74,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('ScheduleExam')} // Navegar a ScheduleExamScreen
           >
             <Text style={styles.textAbove}>Agendar</Text>
-            <Text style={styles.emoji}>📅</Text>
+            <Calendar size={40} color="#FFF" variant="Bold" />
             <Text style={styles.textBelow}>Examen</Text>
           </TouchableOpacity>
 
@@ -88,7 +84,7 @@ const HomeScreen = ({ navigation }) => {
             onPress={() => navigation.navigate('AnswerSheet')} // Navegar a AnswerSheetScheduleScreen
           >
             <Text style={styles.textAbove}>Hoja de</Text>
-            <Text style={styles.emoji}>📝</Text>
+            <DocumentText size={40} color="#FFF" variant="Bold" />
             <Text style={styles.textBelow}>Respuestas</Text>
           </TouchableOpacity>
         </View>
@@ -107,10 +103,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFF', // Fondo blanco
   },
-  header: {
-    height: 300, // Altura del header
-    justifyContent: 'center',
-    alignItems: 'center',
+  headerImage: {
+    width: '100%', // Ocupa todo el ancho
+    height: 150, // Altura deseada para el header, puedes ajustarla
+    resizeMode: 'contain', // 'contain' para mostrar toda la imagen, ajustando su tamaño para que quepa
   },
   welcomeText: {
     fontSize: 30, // Tamaño grande para el texto "BIENVENIDO"

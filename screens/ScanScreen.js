@@ -10,6 +10,7 @@ import {
   Modal,
   FlatList,
 } from "react-native";
+import { Camera, CloudArrowUp } from 'iconsax-react-native';
 import DocumentScanner from "react-native-document-scanner-plugin";
 import firebase from "../database/firebase"; // Importa Firebase
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Firebase Storage
@@ -132,13 +133,19 @@ const ScanScreen = () => {
 
       {/* Botón para escanear */}
       <TouchableOpacity style={styles.button} onPress={scanDocument}>
-        <Text style={styles.buttonText}>Escanear Documento</Text>
+        <View style={styles.buttonContent}>
+          <Camera size={24} color="#fff" variant="Bold" />
+          <Text style={styles.buttonText}>Escanear Documento</Text>
+        </View>
       </TouchableOpacity>
 
       {/* Botón para subir el documento */}
       {scannedDoc && (
         <TouchableOpacity style={styles.button} onPress={uploadDocument}>
-          <Text style={styles.buttonText}>Subir Documento</Text>
+          <View style={styles.buttonContent}>
+            <CloudArrowUp size={24} color="#fff" variant="Bold" />
+            <Text style={styles.buttonText}>Subir Documento</Text>
+          </View>
         </TouchableOpacity>
       )}
 
@@ -184,6 +191,12 @@ const ScanScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
   container: {
     flex: 1,
     justifyContent: "center",

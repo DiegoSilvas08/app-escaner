@@ -13,6 +13,7 @@ import {
   PermissionsAndroid,
   Platform,
 } from "react-native";
+import { Message, Lock } from 'iconsax-react-native';
 import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
 import firebase from "../database/firebase"; // Importa firebase como un objeto
 
@@ -115,7 +116,7 @@ const LoginScreen = ({ navigation }) => {
         {/* Grupo de entrada para el correo electrónico */}
         <View style={styles.inputGroup}>
           {/* Reemplaza el ícono de correo con un texto o imagen */}
-          <Text style={styles.icon}>📧</Text> {/* Emoji como ícono */}
+          <Message size={24} color="#007BFF" variant="Bold" />
           <TextInput
             style={styles.input}
             placeholder="Correo electrónico"
@@ -130,7 +131,7 @@ const LoginScreen = ({ navigation }) => {
         {/* Grupo de entrada para la contraseña */}
         <View style={styles.inputGroup}>
           {/* Reemplaza el ícono de candado con un texto o imagen */}
-          <Text style={styles.icon}>🔒</Text> {/* Emoji como ícono */}
+          <Lock size={24} color="#007BFF" variant="Bold" />
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
