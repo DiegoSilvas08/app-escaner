@@ -1,28 +1,27 @@
 // firebase.js
-import firebase from "firebase/compat/app"; // Importa Firebase App
-import "firebase/compat/firestore"; // Importa Firestore
-import "firebase/compat/auth"; // Importa el módulo de autenticación
-import "firebase/compat/storage"; // Importa Firebase Storage
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import "firebase/compat/auth";
+import "firebase/compat/storage";
 
-// Configuración de Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyCNFo4XcwMrXwjf05OsTEW4l44lEQBk83U",
-    authDomain: "escaner-581ad.firebaseapp.com",
-    projectId: "escaner-581ad",
-    storageBucket: "escaner-581ad.firebasestorage.app",
-    messagingSenderId: "608555016079",
-    appId: "1:608555016079:web:0334f63fe918f2e2aa75fa"
+  apiKey: "AIzaSyCNFo4XcwMrXwjf05OsTEW4l44lEQBk83U",
+  authDomain: "app-escaner-8ae18.firebaseapp.com",
+  databaseURL: "https://app-escaner-8ae18-default-rtdb.firebaseio.com",
+  projectId: "app-escaner-8ae18",
+  storageBucket: "app-escaner-8ae18.appspot.com",  // Corregido aquí
+  messagingSenderId: "703434058862",
+  appId: "1:703434058862:web:c06a2bf79401f5a6350a7f"
 };
 
-// Inicializa Firebase solo si no está ya inicializado
+// Inicializa Firebase solo si no está inicializado aún
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-// Obtén las instancias de Firestore, Auth y Storage
+// Instancias de servicios Firebase
 const db = firebase.firestore();
 const auth = firebase.auth();
 const storage = firebase.storage();
 
-// Exporta las instancias necesarias
-export default { firebase, db, auth, storage }; // Exportación nombrada
+export default{ firebase, db, auth, storage };
