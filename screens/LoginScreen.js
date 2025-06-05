@@ -108,7 +108,7 @@ const LoginScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require("../assets/ITH.jpg")} // Carga la imagen de fondo
+      source={require("../assets/ITH3.jpg")} // Carga la imagen de fondo
       style={styles.background}
       resizeMode="cover" // Ajusta la imagen para cubrir toda la pantalla
     >
