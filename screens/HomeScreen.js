@@ -43,7 +43,6 @@ const HomeScreen = ({ navigation }) => {
 
       {/* Contenido principal */}
       <View style={styles.gridContainer}>
-        {/* Fila 1 */}
         <View style={styles.row}>
           {/* Botón 1: Escaneo */}
           <TouchableOpacity
@@ -55,20 +54,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.textBelow}>Escaneo</Text>
           </TouchableOpacity>
 
-          {/* Botón 2: Consultar Calificaciones */}
-          <TouchableOpacity
-            style={styles.emojiButton}
-            onPress={() => navigation.navigate('Grades')} // Navegar a GradesScreen
-          >
-            <Text style={styles.textAbove}>Ver</Text>
-            <Chart2 size={40} color="#FFF" variant="Bold" />
-            <Text style={styles.textBelow}>Calificaciones</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Fila 2 */}
-        <View style={styles.row}>
-          {/* Botón 3: Agendar Examen */}
+          {/* Botón 2: Agendar Examen */}
           <TouchableOpacity
             style={styles.emojiButton}
             onPress={() => navigation.navigate('ScheduleExam')} // Navegar a ScheduleExamScreen
@@ -76,16 +62,6 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.textAbove}>Agendar</Text>
             <Calendar size={40} color="#FFF" variant="Bold" />
             <Text style={styles.textBelow}>Examen</Text>
-          </TouchableOpacity>
-
-          {/* Botón 4: Programar Hoja de Respuestas */}
-          <TouchableOpacity
-            style={styles.emojiButton}
-            onPress={() => navigation.navigate('AnswerSheet')} // Navegar a AnswerSheetScheduleScreen
-          >
-            <Text style={styles.textAbove}>Hoja de</Text>
-            <DocumentText size={40} color="#FFF" variant="Bold" />
-            <Text style={styles.textBelow}>Respuestas</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -125,7 +101,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', // Organiza los elementos en una fila
     justifyContent: 'space-around', // Espacio uniforme entre los elementos
     width: '100%', // Ocupa todo el ancho disponible
-    marginBottom: 40, // Espacio entre las filas
+    marginBottom: 0, // Sin margen inferior ya que solo hay una fila
   },
   emojiButton: {
     alignItems: 'center',
