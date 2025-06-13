@@ -2,15 +2,17 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import PropTypes from 'prop-types';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { validateEmail } from '@/utils/index';
 import firebase from '@/config/firebase';
 
 const AuthContext = createContext(null);
 const { auth } = firebase;
 
-export function AuthProvider ({ children }) {
+export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [fbUser, fbUserLoading] = useAuthState(auth);
 
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
@@ -57,13 +59,19 @@ export function AuthProvider ({ children }) {
       Alert.alert('Error', 'Por favor, introduce un correo electrónico válido.');
       return;
     }
-    setAuthLoading(true);
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      if (userCredential.user) {
-      }
+      await auth.signInWithEmailAndPassword(email, password);
     } catch (error) {
       Alert.alert('Error', 'Error al iniciar sesión: ' + error.message);
+    }
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      setAuthLoading(true);
+      await auth.signOut();
+    } catch (error) {
+      Alert.alert('Error', 'Error al cerrar sesión: ' + error.message);
     } finally {
       setAuthLoading(false);
     }
@@ -74,25 +82,19 @@ export function AuthProvider ({ children }) {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((u) => {
-      setUser(u);
-      setAuthLoading(false);
-    });
+    setUser(fbUser);
+    setAuthLoading(fbUserLoading);
+  }, [fbUser, fbUserLoading]);
 
-    return unsubscribe;
-  }, []);
-
-  const memData = useMemo(() => {
-    return {
+  const memData = useMemo(
+    () => ({
       user,
       signIn,
+      signOut,
       authLoading,
-    };
-  }, [
-    user,
-    signIn,
-    authLoading,
-  ]);
+    }),
+    [user, signIn, signOut, authLoading],
+  );
 
   return <AuthContext.Provider value={memData}>{children}</AuthContext.Provider>;
 }
@@ -101,6 +103,6 @@ AuthProvider.propTypes = {
   children: PropTypes.any,
 };
 
-export function useAuth () {
+export function useAuth() {
   return useContext(AuthContext);
 }
