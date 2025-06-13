@@ -2,15 +2,10 @@ const functions = require("firebase-functions");
 const axios = require("axios");
 const Jimp = require("jimp");
 const admin = require("firebase-admin");
-const { Storage } = require("@google-cloud/storage");
 
 admin.initializeApp();
-const storage = new Storage();
 const db = admin.firestore();
 
-/**
- * Codifica la URL para evitar errores con caracteres especiales.
- */
 function codificarUrl(url) {
   try {
     const urlObj = new URL(url);
@@ -22,17 +17,11 @@ function codificarUrl(url) {
   }
 }
 
-/**
- * Descarga la imagen desde una URL.
- */
 async function descargarImagen(url) {
   const response = await axios.get(url, {responseType: "arraybuffer"});
   return Buffer.from(response.data, "binary");
 }
 
-/**
- * Determina si una burbuja está marcada.
- */
 function estaMarcada(imagen, x, y, radio = 5) {
   const regionSize = radio * 2;
   let suma = 0;
@@ -55,9 +44,6 @@ function estaMarcada(imagen, x, y, radio = 5) {
   return promedio < 128;
 }
 
-/**
- * Obtiene las respuestas correctas desde Firestore
- */
 async function obtenerRespuestasCorrectas(examId) {
   const examRef = db.collection('exams').doc(examId);
   const doc = await examRef.get();
@@ -72,9 +58,6 @@ async function obtenerRespuestasCorrectas(examId) {
   return doc.data().correctAnswers || [];
 }
 
-/**
- * Calcula el puntaje comparando respuestas
- */
 function calcularPuntaje(respuestasUsuario, respuestasCorrectas) {
   let correctas = 0;
   const results = [];
@@ -97,17 +80,11 @@ function calcularPuntaje(respuestasUsuario, respuestasCorrectas) {
   };
 }
 
-/**
- * Procesa la imagen para extraer respuestas
- */
 async function procesarImagen(buffer) {
   const imagen = await Jimp.read(buffer);
   imagen.grayscale().invert();
 
-  // [Mantén tus coordenadas existentes...]
-  const coordenadasRespuestas = [
-    // ... tus coordenadas actuales ...
-  ];
+  const coordenadasRespuestas = [];
 
   const respuestas = coordenadasRespuestas.map((fila) => {
     for (let i = 0; i < fila.length; i++) {
@@ -117,14 +94,10 @@ async function procesarImagen(buffer) {
     return " ";
   });
 
-  return respuestas.filter(r => r !== " "); // Filtra respuestas vacías
+  return respuestas.filter(r => r !== " ");
 }
 
-/**
- * Función callable modificada para compatibilidad con frontend
- */
 exports.calificarExamen = functions.https.onCall(async (data, context) => {
-  // Validar autenticación
   if (!context.auth) {
     throw new functions.https.HttpsError(
       'unauthenticated',
@@ -142,23 +115,19 @@ exports.calificarExamen = functions.https.onCall(async (data, context) => {
       );
     }
 
-    // Obtener respuestas correctas
     const respuestasCorrectas = await obtenerRespuestasCorrectas(examId);
     
-    // Procesar imagen
     const buffer = imageUrl.startsWith('data:') ? 
       Buffer.from(imageUrl.split(',')[1], 'base64') : 
       await descargarImagen(codificarUrl(imageUrl));
     
     const respuestasUsuario = await procesarImagen(buffer);
     
-    // Calcular resultados
     const { score, totalQuestions, answers } = calcularPuntaje(
       respuestasUsuario, 
       respuestasCorrectas
     );
 
-    // Guardar resultados
     const resultData = {
       userId,
       examId,
