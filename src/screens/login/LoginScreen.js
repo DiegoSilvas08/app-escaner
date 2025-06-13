@@ -109,10 +109,10 @@ const LoginScreen = () => {
 
   return (
     <ImageBackground
-      source={require('../../../assets/ITH3.jpg')}
+      source={require('../../../assets/background.png')}
       style={styles.background}
       resizeMode="cover"
-      blurRadius={5}
+      blurRadius={1}
     >
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
