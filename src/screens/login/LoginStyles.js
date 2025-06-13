@@ -1,64 +1,70 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
+const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   background: {
     flex: 1,
     justifyContent: 'center',
   },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 40,
-    color: '#1A237E',
+  container: {
+    marginHorizontal: 20,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    borderRadius: 20,
+    paddingVertical: 40,
+    paddingHorizontal: 30,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  header: {
+    width: width * 0.7,
+    height: width * 0.40,
+    marginVertical: -42,
+  },
+  logo: {
+    width: width * 0.75,
+    height: width * 0.35,
   },
   inputGroup: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 12,
     paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingVertical: 12,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  icon: {
-    marginRight: 10,
-    fontSize: 24,
   },
   input: {
     flex: 1,
     fontSize: 16,
     color: '#333',
+    marginLeft: 10,
   },
-  button: {
-    width: '100%',
-    backgroundColor: '#007BFF',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
+  loginButton: {
+    width: width * 0.8,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#f78219',
     justifyContent: 'center',
-    marginBottom: 15,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    alignItems: 'center',
+    shadowColor: '#f78219',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  buttonText: {
+  loginButtonText: {
     color: '#fff',
+    fontWeight: '700',
     fontSize: 18,
-    fontWeight: 'bold',
+    letterSpacing: 1,
   },
 });

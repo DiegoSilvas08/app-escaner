@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Text,
   TextInput,
-  TouchableOpacity,
   SafeAreaView,
   Alert,
   View,
   ImageBackground,
-  ActivityIndicator,
+  Image,
   PermissionsAndroid,
   Platform,
+  Animated,
+  TouchableOpacity,
+  Text,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Message, Lock } from 'iconsax-react-native';
@@ -26,6 +27,9 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const opacityAnim = React.useRef(new Animated.Value(1)).current;
+
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
       try {
@@ -39,10 +43,7 @@ const LoginScreen = () => {
             buttonPositive: 'Aceptar',
           },
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('Permisos de la cámara concedidos');
-        } else {
-          console.log('Permisos de la cámara denegados');
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           Alert.alert(
             'Permisos denegados',
             'No se pueden usar las funciones de escáner sin permisos de cámara.',
@@ -55,10 +56,7 @@ const LoginScreen = () => {
       const cameraPermissionStatus = await check(PERMISSIONS.IOS.CAMERA);
       if (cameraPermissionStatus === RESULTS.DENIED) {
         const result = await request(PERMISSIONS.IOS.CAMERA);
-        if (result === RESULTS.GRANTED) {
-          console.log('Permisos de la cámara concedidos');
-        } else {
-          console.log('Permisos de la cámara denegados');
+        if (result !== RESULTS.GRANTED) {
           Alert.alert(
             'Permisos denegados',
             'No se pueden usar las funciones de escáner sin permisos de cámara.',
@@ -73,12 +71,10 @@ const LoginScreen = () => {
       Alert.alert('Error', 'Por favor, completa todos los campos.');
       return;
     }
-
     if (!validateEmail(email)) {
       Alert.alert('Error', 'Por favor, introduce un correo electrónico válido.');
       return;
     }
-
     setLoading(true);
     try {
       const userCredential = await auth.signInWithEmailAndPassword(email, password);
@@ -86,12 +82,26 @@ const LoginScreen = () => {
         navigation.replace('Home');
       }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
       Alert.alert('Error', 'Error al iniciar sesión: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(scaleAnim, { toValue: 1.03, duration: 1200, useNativeDriver: true }),
+          Animated.timing(scaleAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(opacityAnim, { toValue: 0.9, duration: 1200, useNativeDriver: true }),
+          Animated.timing(opacityAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        ]),
+      ]),
+    ).start();
+  }, [opacityAnim, scaleAnim]);
 
   useEffect(() => {
     requestCameraPermission();
@@ -102,40 +112,53 @@ const LoginScreen = () => {
       source={require('../../../assets/ITH3.jpg')}
       style={styles.background}
       resizeMode="cover"
+      blurRadius={5}
     >
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
+        <Image
+          source={require('../../../assets/logo_ith.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Image
+          source={require('../../../assets/header.png')}
+          style={styles.header}
+          resizeMode="contain"
+        />
         <View style={styles.inputGroup}>
-          <Message size={24} color="#007BFF" variant="Bold" />
+          <Message size={24} color="#f78219" variant="Bold" />
           <TextInput
             style={styles.input}
             placeholder="Correo electrónico"
-            placeholderTextColor="#888"
+            placeholderTextColor="#aaa"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
         </View>
-
         <View style={styles.inputGroup}>
-          <Lock size={24} color="#007BFF" variant="Bold" />
+          <Lock size={24} color="#f78219" variant="Bold" />
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
-            placeholderTextColor="#888"
+            placeholderTextColor="#aaa"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
           />
         </View>
-
-        {loading ? (
-          <ActivityIndicator size="large" color="#007BFF" />
-        ) : (
-          <TouchableOpacity style={styles.button} onPress={signIn}>
-            <Text style={styles.buttonText}>Iniciar Sesión</Text>
+        <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={signIn}
+            activeOpacity={0.8}
+            disabled={loading}
+          >
+            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
           </TouchableOpacity>
-        )}
+        </Animated.View>
       </SafeAreaView>
     </ImageBackground>
   );

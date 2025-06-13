@@ -38,5 +38,8 @@ module.exports = {
   },
   rules: {
     'import/no-unresolved': ['error', { ignore: ['react-native'] }],
+    indent: ['error', 2],
+    'react/jsx-indent': ['error', 2],
+    'react/jsx-indent-props': ['error', 2],
   },
 };
