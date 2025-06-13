@@ -48,8 +48,12 @@ export const styles = StyleSheet.create({
     color: '#333',
     marginLeft: 10,
   },
-  loginButton: {
+  animatedView: {
+    marginBottom: 20,
     width: width * 0.8,
+  },
+  loginButton: {
+    width: '100%',
     height: 50,
     borderRadius: 25,
     backgroundColor: '#f78219',
@@ -61,8 +65,27 @@ export const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+  googleButton: {
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#DB4437',
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  googleIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
   loginButtonText: {
     color: '#fdfceb',
+    fontWeight: '700',
+    fontSize: 18,
+    letterSpacing: 1,
+  },
+    googleButtonText: {
+    color: '#f78219',
     fontWeight: '700',
     fontSize: 18,
     letterSpacing: 1,

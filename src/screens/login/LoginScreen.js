@@ -15,13 +15,16 @@ import { useAuth } from '@/hooks/AuthContext';
 import { styles } from './LoginStyles';
 
 const LoginScreen = () => {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [signInLoading, setSignInLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
   const opacityAnim = React.useRef(new Animated.Value(1)).current;
+  const googleScaleAnim = React.useRef(new Animated.Value(1)).current;
+  const googleOpacityAnim = React.useRef(new Animated.Value(1)).current;
 
   const onSignInPressed = async () => {
     try {
@@ -31,6 +34,17 @@ const LoginScreen = () => {
       console.log(e);
     } finally {
       setSignInLoading(false);
+    }
+  };
+
+  const onGoogleSignInPressed = async () => {
+    try {
+      setGoogleLoading(true);
+      await signInWithGoogle();
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -47,7 +61,20 @@ const LoginScreen = () => {
         ]),
       ]),
     ).start();
-  }, [opacityAnim, scaleAnim]);
+
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(googleScaleAnim, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
+          Animated.timing(googleScaleAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(googleOpacityAnim, { toValue: 0.95, duration: 1500, useNativeDriver: true }),
+          Animated.timing(googleOpacityAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+      ]),
+    ).start();
+  }, [opacityAnim, scaleAnim, googleOpacityAnim, googleScaleAnim]);
 
   return (
     <ImageBackground
@@ -91,7 +118,15 @@ const LoginScreen = () => {
             secureTextEntry
           />
         </View>
-        <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
+        <Animated.View
+          style={[
+            styles.animatedView,
+            {
+              transform: [{ scale: scaleAnim }],
+              opacity: opacityAnim,
+            },
+          ]}
+        >
           <TouchableOpacity
             style={styles.loginButton}
             onPress={onSignInPressed}
@@ -99,6 +134,34 @@ const LoginScreen = () => {
             disabled={signInLoading}
           >
             {signInLoading ? <ActivityIndicator color={'#fdfceb'} /> : <Text style={styles.loginButtonText}>Iniciar Sesión</Text>}
+          </TouchableOpacity>
+        </Animated.View>
+        <Animated.View
+          style={[
+            styles.animatedView,
+            {
+              transform: [{ scale: googleScaleAnim }],
+              opacity: googleOpacityAnim,
+            },
+          ]}
+        >
+          <TouchableOpacity
+            style={[styles.loginButton, styles.googleButton]}
+            onPress={onGoogleSignInPressed}
+            activeOpacity={0.8}
+            disabled={googleLoading}
+          >
+            {googleLoading ? (
+              <ActivityIndicator color={'#fdfceb'} />
+            ) : (
+              <View style={styles.googleButtonContent}>
+                <Image
+                  source={require('../../../assets/google-icon.png')}
+                  style={styles.googleIcon}
+                />
+                <Text style={styles.googleButtonText}>Continuar con Google</Text>
+              </View>
+            )}
           </TouchableOpacity>
         </Animated.View>
       </SafeAreaView>
