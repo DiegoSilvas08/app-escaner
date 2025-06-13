@@ -68,12 +68,9 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     try {
-      setAuthLoading(true);
       await auth.signOut();
     } catch (error) {
       Alert.alert('Error', 'Error al cerrar sesión: ' + error.message);
-    } finally {
-      setAuthLoading(false);
     }
   }, []);
 

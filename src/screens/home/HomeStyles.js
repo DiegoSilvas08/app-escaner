@@ -1,70 +1,77 @@
-const { StyleSheet } = require('react-native');
+import { StyleSheet, Dimensions } from 'react-native';
+const { width, height } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
-  container: {
+  background: {
     flex: 1,
-    backgroundColor: '#FFF',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  headerWrapper: {
+    width: '100%',
+    alignItems: 'center',
   },
   headerImage: {
-    width: '100%',
-    height: 150,
-    resizeMode: 'contain',
+    width: width * 0.95,
+    height: height * 0.25,
   },
-  welcomeText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginTop: 20,
-    marginBottom: 40,
-  },
-  gridContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  titleContainer: {
+    width: '90%',
     alignItems: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginBottom: 0,
-  },
-  emojiButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#007BFF',
-    borderRadius: 10,
-    padding: 15,
-    width: 120,
-    height: 120,
-    backgroundColor: '#007BFF',
-  },
-  emoji: {
-    fontSize: 60,
-    color: '#FFF',
-  },
-  textAbove: {
-    fontSize: 14,
-    color: '#FFF',
-    marginBottom: 5,
-  },
-  textBelow: {
-    fontSize: 14,
-    color: '#FFF',
-    marginTop: 5,
-  },
-  logoutButton: {
-    backgroundColor: '#FF0000',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginHorizontal: 20,
     marginBottom: 20,
   },
-  logoutButtonText: {
-    color: '#FFF',
+  menuTitle: {
+    fontSize: 24,
+    color: '#fffde1',
+    fontWeight: '700',
+  },
+  menu: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    marginBottom: 30,
+  },
+  card: {
+    width: width * 0.42,
+    height: width * 0.42,
+    backgroundColor: '#f78219',
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 5,
+    shadowColor: '#f78219',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  cardLabel: {
+    color: '#fffde1',
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    marginTop: 10,
+  },
+  logout: {
+    position: 'absolute',
+    bottom: height * 0.05,
+    width: '90%',
+    backgroundColor: '#f78219',
+    paddingVertical: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#f78219',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  logoutText: {
+    color: '#fffde1',
+    fontSize: 18,
+    fontWeight: '700',
   },
 });
