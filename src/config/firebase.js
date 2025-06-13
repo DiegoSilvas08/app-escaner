@@ -17,8 +17,10 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
+
 const db = firebase.firestore();
 const auth = firebase.auth();
 const storage = firebase.storage();
 
-export default { firebase, db, auth, storage };
+
+export default{ firebase, db, auth, storage };
