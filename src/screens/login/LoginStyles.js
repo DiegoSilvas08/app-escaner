@@ -62,7 +62,7 @@ export const styles = StyleSheet.create({
     elevation: 4,
   },
   loginButtonText: {
-    color: '#fff',
+    color: '#fdfceb',
     fontWeight: '700',
     fontSize: 18,
     letterSpacing: 1,

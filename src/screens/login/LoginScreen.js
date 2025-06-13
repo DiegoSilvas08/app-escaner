@@ -2,89 +2,35 @@ import React, { useState, useEffect } from 'react';
 import {
   TextInput,
   SafeAreaView,
-  Alert,
   View,
   ImageBackground,
   Image,
-  PermissionsAndroid,
-  Platform,
   Animated,
   TouchableOpacity,
   Text,
+  ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Message, Lock } from 'iconsax-react-native';
-import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-import firebase from '@/config/firebase';
+import { useAuth } from '@/hooks/AuthContext';
 import { styles } from './LoginStyles';
-import { validateEmail } from 'utils';
-
-const { auth } = firebase;
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [signInLoading, setSignInLoading] = useState(false);
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
   const opacityAnim = React.useRef(new Animated.Value(1)).current;
 
-  const requestCameraPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: 'Permisos de la cámara',
-            message: 'Esta aplicación necesita acceso a la cámara para escanear documentos.',
-            buttonNeutral: 'Preguntar después',
-            buttonNegative: 'Cancelar',
-            buttonPositive: 'Aceptar',
-          },
-        );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert(
-            'Permisos denegados',
-            'No se pueden usar las funciones de escáner sin permisos de cámara.',
-          );
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    } else if (Platform.OS === 'ios') {
-      const cameraPermissionStatus = await check(PERMISSIONS.IOS.CAMERA);
-      if (cameraPermissionStatus === RESULTS.DENIED) {
-        const result = await request(PERMISSIONS.IOS.CAMERA);
-        if (result !== RESULTS.GRANTED) {
-          Alert.alert(
-            'Permisos denegados',
-            'No se pueden usar las funciones de escáner sin permisos de cámara.',
-          );
-        }
-      }
-    }
-  };
-
-  const signIn = async () => {
-    if (!email || !password) {
-      Alert.alert('Error', 'Por favor, completa todos los campos.');
-      return;
-    }
-    if (!validateEmail(email)) {
-      Alert.alert('Error', 'Por favor, introduce un correo electrónico válido.');
-      return;
-    }
-    setLoading(true);
+  const onSignInPressed = async () => {
     try {
-      const userCredential = await auth.signInWithEmailAndPassword(email, password);
-      if (userCredential.user) {
-        navigation.replace('Home');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Error al iniciar sesión: ' + error.message);
+      setSignInLoading(true);
+      await signIn(email, password);
+    } catch (e) {
+      console.log(e);
     } finally {
-      setLoading(false);
+      setSignInLoading(false);
     }
   };
 
@@ -102,10 +48,6 @@ const LoginScreen = () => {
       ]),
     ).start();
   }, [opacityAnim, scaleAnim]);
-
-  useEffect(() => {
-    requestCameraPermission();
-  }, []);
 
   return (
     <ImageBackground
@@ -152,11 +94,11 @@ const LoginScreen = () => {
         <Animated.View style={{ transform: [{ scale: scaleAnim }], opacity: opacityAnim }}>
           <TouchableOpacity
             style={styles.loginButton}
-            onPress={signIn}
+            onPress={onSignInPressed}
             activeOpacity={0.8}
-            disabled={loading}
+            disabled={signInLoading}
           >
-            <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
+            {signInLoading ? <ActivityIndicator color={'#fdfceb'} /> : <Text style={styles.loginButtonText}>Iniciar Sesión</Text>}
           </TouchableOpacity>
         </Animated.View>
       </SafeAreaView>
