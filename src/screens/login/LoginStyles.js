@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
     width: width * 0.7,
     height: width * 0.40,
     marginVertical: -42,
+    marginLeft: 15,
   },
   logo: {
     width: width * 0.75,
@@ -84,7 +85,7 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     letterSpacing: 1,
   },
-    googleButtonText: {
+  googleButtonText: {
     color: '#f78219',
     fontWeight: '700',
     fontSize: 18,

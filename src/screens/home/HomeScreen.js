@@ -66,7 +66,7 @@ const HomeScreen = () => {
           activeOpacity={0.8}
         >
           <Camera size={50} color="#fffde1" variant="Bold" />
-          <Text style={styles.cardLabel}>Escanear</Text>
+          <Text style={styles.cardLabel}>Calificar Examen</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.card}
@@ -74,7 +74,7 @@ const HomeScreen = () => {
           activeOpacity={0.8}
         >
           <Calendar size={50} color="#fffde1" variant="Bold" />
-          <Text style={styles.cardLabel}>Agendar</Text>
+          <Text style={styles.cardLabel}>Crear Examen</Text>
         </TouchableOpacity>
       </Animated.View>
       <TouchableOpacity

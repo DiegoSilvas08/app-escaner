@@ -14,6 +14,7 @@ export const styles = StyleSheet.create({
   headerWrapper: {
     width: '100%',
     alignItems: 'center',
+    marginLeft: 15,
   },
   headerImage: {
     width: width * 0.95,
