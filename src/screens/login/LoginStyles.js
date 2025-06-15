@@ -80,14 +80,14 @@ export const styles = StyleSheet.create({
   },
   loginButtonText: {
     color: '#fdfceb',
-    fontWeight: '700',
-    fontSize: 18,
+    fontWeight: '600',
+    fontSize: 16,
     letterSpacing: 1,
   },
-    googleButtonText: {
+  googleButtonText: {
     color: '#f78219',
-    fontWeight: '700',
-    fontSize: 18,
+    fontWeight: '600',
+    fontSize: 16,
     letterSpacing: 1,
   },
 });
