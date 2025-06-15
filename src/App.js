@@ -1,9 +1,16 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+
 import { AuthProvider, useAuth } from './hooks/AuthContext';
 import MainStack from './navigations/MainStack';
 import AuthStack from './navigations/AuthStack';
 import Loading from './components/Loading';
+
+GoogleSignin.configure({
+  webClientId:
+    '703434058862-80ls0k2798jhflp88a73et5jb1216dkg.apps.googleusercontent.com',
+});
 
 const RootStack = createStackNavigator();
 

@@ -14,11 +14,9 @@ import {
 import { Message, Lock } from 'iconsax-react-native';
 import { useAuth } from '@/hooks/AuthContext';
 import { styles } from './LoginStyles';
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { GoogleAuthProvider, getAuth, signInWithCredential } from '@react-native-firebase/auth';
 
 const LoginScreen = () => {
-  const { signIn } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [signInLoading, setSignInLoading] = useState(false);
@@ -28,12 +26,6 @@ const LoginScreen = () => {
   const opacityAnim = React.useRef(new Animated.Value(1)).current;
   const googleScaleAnim = React.useRef(new Animated.Value(1)).current;
   const googleOpacityAnim = React.useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: '703434058862-80ls0k2798jhflp88a73et5jb1216dkg.apps.googleusercontent.com',
-    });
-  }, []);
 
   const onSignInPressed = async () => {
     try {
@@ -46,27 +38,10 @@ const LoginScreen = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const signInResult = await GoogleSignin.signIn();
-
-      let idToken = signInResult.data?.idToken;
-      if (!idToken) {idToken = signInResult.idToken;}
-      if (!idToken) {throw new Error('No ID token found');}
-
-      const googleCredential = GoogleAuthProvider.credential(idToken);
-      return signInWithCredential(getAuth(), googleCredential);
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      throw error;
-    }
-  };
-
   const onGoogleSignInPressed = async () => {
     try {
       setGoogleLoading(true);
-      await handleGoogleSignIn();
+      await signInWithGoogle();
     } catch (e) {
       console.log(e);
       Alert.alert('Error', 'No se pudo iniciar sesión con Google');

@@ -3,6 +3,8 @@ import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import PropTypes from 'prop-types';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { GoogleAuthProvider, getAuth, signInWithCredential } from '@react-native-firebase/auth';
 import { validateEmail } from '@/utils/index';
 import firebase from '@/config/firebase';
 
@@ -66,6 +68,20 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      const signInResult = await GoogleSignin.signIn();
+
+      let idToken = signInResult.data?.idToken;
+      const googleCredential = GoogleAuthProvider?.credential(idToken);
+      await signInWithCredential(getAuth(), googleCredential);
+    } catch (error) {
+      console.error('Google Sign-In Error:', error);
+      throw error;
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     try {
       await auth.signOut();
@@ -87,10 +103,11 @@ export function AuthProvider({ children }) {
     () => ({
       user,
       signIn,
+      signInWithGoogle,
       signOut,
       authLoading,
     }),
-    [user, signIn, signOut, authLoading],
+    [user, signIn, signInWithGoogle, signOut, authLoading],
   );
 
   return <AuthContext.Provider value={memData}>{children}</AuthContext.Provider>;
