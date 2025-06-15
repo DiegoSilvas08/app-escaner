@@ -16,7 +16,7 @@ export const styles = StyleSheet.create({
   },
   button: {
     width: '100%',
-    backgroundColor: '#007BFF',
+    backgroundColor: '#f78219',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
@@ -66,7 +66,7 @@ export const styles = StyleSheet.create({
   },
   closeButton: {
     marginTop: 20,
-    backgroundColor: '#007BFF',
+    backgroundColor: '#f78219',
     padding: 10,
     borderRadius: 5,
     alignItems: 'center',

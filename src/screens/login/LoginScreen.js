@@ -43,6 +43,8 @@ const LoginScreen = () => {
       await signInWithGoogle();
     } catch (e) {
       console.log(e);
+      // eslint-disable-next-line no-undef
+      Alert.alert('Error', 'No se pudo iniciar sesión con Google');
     } finally {
       setGoogleLoading(false);
     }

@@ -123,7 +123,7 @@ const ScanScreen = () => {
       <TouchableOpacity style={styles.button} onPress={scanDocument}>
         <View style={styles.buttonContent}>
           <Camera size={24} color="#fff" variant="Bold" />
-          <Text style={styles.buttonText}>Escanear Documento</Text>
+          <Text style={styles.buttonText}>Subir Fotos de Galeria</Text>
         </View>
       </TouchableOpacity>
 
