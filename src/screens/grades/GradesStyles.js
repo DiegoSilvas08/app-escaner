@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 20,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#f78219',
   },
   menuButtonText: {
     fontSize: 16,

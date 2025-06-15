@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "703434058862",
+    "firebase_url": "https://app-escaner-8ae18-default-rtdb.firebaseio.com",
+    "project_id": "app-escaner-8ae18",
+    "storage_bucket": "app-escaner-8ae18.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703434058862:android:8d72231e26eae380350a7f",
+        "android_client_info": {
+          "package_name": "com.appescaner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "703434058862-6eadoinm5lenrskl2b2acj8k33s3qve0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.appescaner",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "703434058862-80ls0k2798jhflp88a73et5jb1216dkg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu1NA3BXVVMcwTO7cfQdRt5nykiCOMmfI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "703434058862-80ls0k2798jhflp88a73et5jb1216dkg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

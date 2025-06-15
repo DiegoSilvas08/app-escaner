@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Camera, Calendar } from 'iconsax-react-native';
+import { Camera, Calendar, DocumentText } from 'iconsax-react-native';
 import { useAuth } from '@/hooks/AuthContext';
 import { styles } from './HomeStyles';
 
@@ -19,6 +19,8 @@ const HomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
+  const bottomScale = useRef(new Animated.Value(1)).current;
+  const bottomOpacity = useRef(new Animated.Value(1)).current;
 
   const onSignOut = async () => {
     setLoading(true);
@@ -30,7 +32,7 @@ const HomeScreen = () => {
     Animated.loop(
       Animated.parallel([
         Animated.sequence([
-          Animated.timing(scale, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1.03, duration: 1500, useNativeDriver: true }),
           Animated.timing(scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
         ]),
         Animated.sequence([
@@ -39,7 +41,20 @@ const HomeScreen = () => {
         ]),
       ]),
     ).start();
-  }, [scale, opacity]);
+
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(bottomScale, { toValue: 1.02, duration: 1500, delay: 300, useNativeDriver: true }),
+          Animated.timing(bottomScale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(bottomOpacity, { toValue: 0.97, duration: 1500, delay: 300, useNativeDriver: true }),
+          Animated.timing(bottomOpacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+      ]),
+    ).start();
+  }, [scale, opacity, bottomScale, bottomOpacity]);
 
   return (
     <ImageBackground
@@ -59,24 +74,40 @@ const HomeScreen = () => {
       <View style={styles.titleContainer}>
         <Text style={styles.menuTitle}>Selecciona una opción</Text>
       </View>
+
       <Animated.View style={[styles.menu, { transform: [{ scale }], opacity }]}>
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Scan')}
-          activeOpacity={0.8}
-        >
-          <Camera size={50} color="#fffde1" variant="Bold" />
-          <Text style={styles.cardLabel}>Escanear</Text>
-        </TouchableOpacity>
         <TouchableOpacity
           style={styles.card}
           onPress={() => navigation.navigate('ScheduleExam')}
           activeOpacity={0.8}
         >
           <Calendar size={50} color="#fffde1" variant="Bold" />
-          <Text style={styles.cardLabel}>Agendar</Text>
+          <Text style={styles.cardLabel}>Crear Examen</Text>
+        </TouchableOpacity>
+
+        <View style={styles.cardSpacer} />
+
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('Scan')}
+          activeOpacity={0.8}
+        >
+          <Camera size={50} color="#fffde1" variant="Bold" />
+          <Text style={styles.cardLabel}>Calificar Examen</Text>
         </TouchableOpacity>
       </Animated.View>
+
+      <Animated.View style={[styles.bottomCardContainer, { transform: [{ scale: bottomScale }], opacity: bottomOpacity }]}>
+        <TouchableOpacity
+          style={styles.bottomCard}
+          onPress={() => navigation.navigate('ReviewGrades')}
+          activeOpacity={0.8}
+        >
+          <DocumentText size={40} color="#fffde1" variant="Bold" />
+          <Text style={styles.bottomCardLabel}>Revisar Calificaciones</Text>
+        </TouchableOpacity>
+      </Animated.View>
+
       <TouchableOpacity
         style={styles.logout}
         onPress={onSignOut}

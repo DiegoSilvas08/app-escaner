@@ -27,6 +27,7 @@ export const styles = StyleSheet.create({
     width: width * 0.7,
     height: width * 0.40,
     marginVertical: -42,
+    marginLeft: 15,
   },
   logo: {
     width: width * 0.75,
