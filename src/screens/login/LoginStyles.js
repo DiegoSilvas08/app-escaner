@@ -60,15 +60,15 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f78219',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#f78219',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 10,
   },
   googleButton: {
     backgroundColor: '#FFFFFF',
-    shadowColor: '#DB4437',
+    shadowColor: '#000000',
   },
   googleButtonContent: {
     flexDirection: 'row',

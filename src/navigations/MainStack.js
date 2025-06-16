@@ -4,6 +4,7 @@ import ScanScreen from '@/screens/scan/ScanScreen';
 import ScheduleExamScreen from '@/screens/scheduleExam/ScheduleExamScreen';
 import AnswerSheetScreen from '@/screens/answer/AnswerSheetScreen';
 import GradesScreen from '@/screens/grades/GradesScreen';
+import ReviewGradesScreen from '@/screens/reviewGrades/ReviewGradesScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,11 @@ const MainStack = () => {
       <Stack.Screen
         name="Grades"
         component={GradesScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="ReviewGrades"
+        component={ReviewGradesScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

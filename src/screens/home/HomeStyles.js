@@ -1,7 +1,7 @@
 import { StyleSheet, Dimensions } from 'react-native';
 const { width, height } = Dimensions.get('window');
 
-export const styles = StyleSheet.create({
+export default StyleSheet.create({
   background: {
     flex: 1,
     alignItems: 'center',
@@ -47,7 +47,6 @@ export const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#f78219',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -78,7 +77,6 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
-    shadowColor: '#f78219',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -94,14 +92,17 @@ export const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   logout: {
-    position: 'absolute',
-    bottom: height * 0.05,
-    width: '90%',
-    backgroundColor: '#f78219',
-    paddingVertical: 15,
-    borderRadius: 25,
+    flexDirection: 'row',
+    marginTop: 180,
     alignItems: 'center',
-    shadowColor: '#f78219',
+    width: width * 0.9,
+    height: 50,
+    backgroundColor: '#f78219',
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#f78219',
+    marginBottom: 20,
+    justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,

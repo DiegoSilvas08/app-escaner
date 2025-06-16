@@ -1,39 +1,174 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, TextInput, ScrollView, TouchableOpacity, Text, Alert, ActivityIndicator, Animated } from 'react-native';
+import { View, TextInput, ScrollView, TouchableOpacity, Text, Alert, ActivityIndicator, Animated, Modal, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Book1, DocumentText, Calendar as CalendarIcon } from 'iconsax-react-native';
+import { Book1, DocumentText, Calendar as CalendarIcon, Add, CloseCircle } from 'iconsax-react-native';
 import { Calendar as CalendarComponent } from 'react-native-calendars';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import Share from 'react-native-share';
 import firebase from '@/config/firebase';
-import { styles } from './ScheduleExamStyles';
+import styles from './ScheduleExamStyles';
 
 const { db, firebase: firebaseInstance } = firebase;
 
 const ScheduleExamScreen = () => {
   const navigation = useNavigation();
-  const [examName, setExamName] = useState('');
-  const [classroom, setClassroom] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
+  const [formData, setFormData] = useState({
+    subject: '',
+    examName: '',
+    classroom: '',
+    selectedDate: '',
+    dateRange: {},
+    questions: [],
+    currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0 },
+  });
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const scaleValue = useMemo(() => new Animated.Value(1), []);
+  const menuScaleValue = useMemo(() => new Animated.Value(1), []);
 
   useEffect(() => {
-    const animation = Animated.loop(
+    const createAnimation = (value) => Animated.loop(
       Animated.sequence([
-        Animated.timing(scaleValue, { toValue: 0.98, duration: 1000, useNativeDriver: true }),
-        Animated.timing(scaleValue, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(value, { toValue: 0.98, duration: 1000, useNativeDriver: true }),
+        Animated.timing(value, { toValue: 1, duration: 1000, useNativeDriver: true }),
       ]),
     );
-    animation.start();
-    return () => animation.stop();
-  }, [scaleValue]);
+    const anim1 = createAnimation(scaleValue).start();
+    const anim2 = createAnimation(menuScaleValue).start();
+    return () => { anim1.stop(); anim2.stop(); };
+  }, [scaleValue, menuScaleValue]);
 
   const handleDateSelect = (date) => {
-    const formattedDate = new Date(date.dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-    setSelectedDate(formattedDate);
+    const startDate = new Date(date.dateString);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + 13);
+
+    const range = {};
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const dateStr = currentDate.toISOString().split('T')[0];
+      range[dateStr] = {selected: true, selectedColor: '#f78219'};
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    const format = { year: 'numeric', month: 'long', day: 'numeric' };
+    setFormData(prev => ({
+      ...prev,
+      dateRange: range,
+      selectedDate: `${startDate.toLocaleDateString('es-ES', format)} - ${endDate.toLocaleDateString('es-ES', format)}`,
+    }));
+  };
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleQuestionInput = (field, value, index = null) => {
+    if (index !== null) {
+      const newOptions = [...formData.currentQuestion.options];
+      newOptions[index] = value;
+      setFormData(prev => ({ ...prev, currentQuestion: { ...prev.currentQuestion, options: newOptions } }));
+    } else {
+      setFormData(prev => ({ ...prev, currentQuestion: { ...prev.currentQuestion, [field]: value } }));
+    }
+  };
+
+  const handleAddQuestion = () => {
+    if (formData.questions.length >= 20) {
+      Alert.alert('Límite alcanzado', 'Máximo 20 preguntas por examen');
+      return;
+    }
+    setModalVisible(true);
+  };
+
+  const saveQuestion = () => {
+    if (!formData.currentQuestion.text || formData.currentQuestion.options.some(opt => !opt)) {
+      Alert.alert('Error', 'Completa la pregunta y todas las opciones');
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      questions: [...prev.questions, prev.currentQuestion],
+      currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0 },
+    }));
+    setModalVisible(false);
+  };
+
+  const saveNewExam = async () => {
+    if (!formData.subject || !formData.examName || !formData.classroom || !formData.selectedDate || formData.questions.length === 0) {
+      Alert.alert('Error', 'Completa todos los campos y agrega al menos una pregunta');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await db.collection('exams').add({
+        subject: formData.subject,
+        name: formData.examName,
+        classroom: formData.classroom,
+        date: formData.selectedDate,
+        questions: formData.questions,
+        createdAt: firebaseInstance.firestore.FieldValue.serverTimestamp(),
+      });
+      Alert.alert('Éxito', 'Examen creado correctamente');
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert('Error', 'Error al guardar el examen');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateAndSharePDF = async () => {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial; padding: 20px; }
+            h1 { color: #f78219; text-align: center; }
+            .info { margin-bottom: 20px; }
+            .question { margin-bottom: 15px; }
+            .options { margin-left: 20px; }
+            .correct { color: #4CAF50; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>${formData.examName}</h1>
+          <div class="info">
+            <p><strong>Materia:</strong> ${formData.subject}</p>
+            <p><strong>Salón:</strong> ${formData.classroom}</p>
+            <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
+          </div>
+          ${formData.questions.map((q, i) => `
+            <div class="question">
+              <p><strong>${i + 1}.</strong> ${q.text}</p>
+              <div class="options">
+                ${q.options.map((opt, j) => `<p>${String.fromCharCode(65 + j)}. ${opt}</p>`).join('')}
+              </div>
+              <p class="correct">Respuesta correcta: ${String.fromCharCode(65 + q.correctAnswer)}</p>
+            </div>
+          `).join('')}
+        </body>
+      </html>
+    `;
+
+    try {
+      const { filePath } = await RNHTMLtoPDF.convert({
+        html: htmlContent,
+        fileName: `Examen_${formData.examName.replace(/\s+/g, '_')}`,
+        directory: 'Documents',
+      });
+
+      await Share.open({
+        title: 'Compartir examen',
+        url: `file://${filePath}`,
+        type: 'application/pdf',
+      });
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo generar el PDF');
+    }
   };
 
   const calendarTheme = {
@@ -49,45 +184,16 @@ const ScheduleExamScreen = () => {
     textDayFontWeight: '500',
     textMonthFontWeight: 'bold',
     textDayHeaderFontWeight: '500',
-    textDayFontSize: 16,
-    textMonthFontSize: 16,
+    textDayFontSize: 14,
+    textMonthFontSize: 14,
     textDayHeaderFontSize: 12,
+    monthNames: ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'],
+    monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
+    dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
+    dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
     'stylesheet.calendar.header': {
-      header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingLeft: 10,
-        paddingRight: 10,
-        alignItems: 'center',
-      },
+      header: { flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, alignItems: 'center' },
     },
-  };
-
-  const saveNewExam = async () => {
-    if (!examName || !classroom || !selectedDate) {
-      Alert.alert('Error', 'Por favor, completa todos los campos.');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await db.collection('exams').add({
-        name: examName,
-        classroom: classroom,
-        date: selectedDate,
-        createdAt: firebaseInstance.firestore.FieldValue.serverTimestamp(),
-      });
-      Alert.alert('Éxito', 'Examen agendado correctamente.');
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert('Error', 'No se pudo guardar el examen.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const goToMainMenu = () => {
-    navigation.navigate('Home');
   };
 
   return (
@@ -95,79 +201,153 @@ const ScheduleExamScreen = () => {
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
           <View style={styles.inputGroup}>
-            <Book1 size={24} color="#f78219" variant="Bold" style={styles.icon} />
+            <Book1 size={20} color="#f78219" variant="Bold" style={styles.icon} />
             <TextInput
               style={styles.input}
-              placeholder="Nombre del Examen"
+              placeholder="Materia"
               placeholderTextColor="#999999"
-              value={examName}
-              onChangeText={setExamName}
+              value={formData.subject}
+              onChangeText={(text) => handleInputChange('subject', text)}
             />
           </View>
 
           <View style={styles.inputGroup}>
-            <DocumentText size={24} color="#f78219" variant="Bold" style={styles.icon} />
+            <Book1 size={20} color="#f78219" variant="Bold" style={styles.icon} />
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre del Examen"
+              placeholderTextColor="#999999"
+              value={formData.examName}
+              onChangeText={(text) => handleInputChange('examName', text)}
+            />
+          </View>
+
+          <View style={styles.inputGroup}>
+            <DocumentText size={20} color="#f78219" variant="Bold" style={styles.icon} />
             <TextInput
               style={styles.input}
               placeholder="Salón a Aplicar"
               placeholderTextColor="#999999"
-              value={classroom}
-              onChangeText={setClassroom}
+              value={formData.classroom}
+              onChangeText={(text) => handleInputChange('classroom', text)}
             />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            <CalendarIcon size={20} color="#f78219" variant="Bold" /> Fecha del Examen
+            <CalendarIcon size={18} color="#f78219" variant="Bold" /> Fecha del Examen
           </Text>
-
           <View style={styles.calendarContainer}>
             <CalendarComponent
               onDayPress={handleDateSelect}
-              markedDates={selectedDate ? {
-                [new Date(selectedDate).toISOString().split('T')[0]]: {
-                  selected: true,
-                  selectedColor: '#f78219',
-                },
-              } : {}}
+              markedDates={formData.dateRange}
               theme={calendarTheme}
               hideExtraDays
               firstDay={1}
-              monthFormat="MMM yyyy"
-              renderHeader={(date) => {
-                const monthName = date.toString('MMM yyyy').toUpperCase();
-                return (
-                  <View style={styles.calendarHeader}>
-                    <Text style={styles.headerMonth}>{monthName}</Text>
-                  </View>
-                );
-              }}
+              monthFormat="MMMM yyyy"
+              renderHeader={(date) => (
+                <View style={styles.calendarHeader}>
+                  <Text style={styles.headerMonth}>
+                    {date.toString('MMMM yyyy').charAt(0).toUpperCase() + date.toString('MMMM yyyy').slice(1)}
+                  </Text>
+                </View>
+              )}
             />
           </View>
+          {formData.selectedDate && <Text style={styles.selectedDateText}>Seleccionado: {formData.selectedDate}</Text>}
+        </View>
 
-          {selectedDate && (
-            <Text style={styles.selectedDateText}>Seleccionado: {selectedDate}</Text>
-          )}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preguntas ({formData.questions.length}/20)</Text>
+          <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
+            <Add size={20} color="#f78219" variant="Bold" />
+            <Text style={styles.addButtonText}>Agregar Pregunta</Text>
+          </TouchableOpacity>
+
+          {formData.questions.map((q, i) => (
+            <View key={i} style={styles.questionItem}>
+              <Text style={styles.questionText}>{i + 1}. {q.text}</Text>
+              {q.options.map((opt, j) => (
+                <Text key={j} style={styles.optionText}>{String.fromCharCode(65 + j)}. {opt}</Text>
+              ))}
+              <Text style={styles.correctAnswer}>✓ {String.fromCharCode(65 + q.correctAnswer)}</Text>
+            </View>
+          ))}
         </View>
 
         <View style={styles.buttonContainer}>
-          {loading ? (
-            <ActivityIndicator size="large" color="#f78219" style={styles.loading} />
-          ) : (
-            <TouchableOpacity
-              style={[styles.button, { transform: [{ scale: scaleValue }] }]}
-              onPress={saveNewExam}
-            >
-              <Text style={styles.buttonText}>Crear Examen</Text>
-            </TouchableOpacity>
+          {loading ? <ActivityIndicator size="small" color="#f78219" /> : (
+            <>
+              <TouchableOpacity
+                style={[styles.button, { transform: [{ scale: scaleValue }] }]}
+                onPress={saveNewExam}
+              >
+                <Text style={styles.buttonText}>Guardar Examen</Text>
+              </TouchableOpacity>
+
+              {formData.questions.length > 0 && (
+                <TouchableOpacity
+                  style={[styles.printButton, { transform: [{ scale: scaleValue }] }]}
+                  onPress={generateAndSharePDF}
+                >
+                  <Text style={styles.buttonText}>Generar PDF</Text>
+                </TouchableOpacity>
+              )}
+            </>
           )}
         </View>
 
-        <TouchableOpacity style={styles.menuButton} onPress={goToMainMenu}>
+        <TouchableOpacity
+          style={[styles.menuButton, { transform: [{ scale: menuScaleValue }] }]}
+          onPress={() => navigation.navigate('Home')}
+        >
           <Text style={styles.buttonText}>Menú Principal</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Nueva Pregunta</Text>
+              <Pressable onPress={() => setModalVisible(false)}>
+                <CloseCircle size={24} color="#f78219" />
+              </Pressable>
+            </View>
+
+            <TextInput
+              style={styles.questionInput}
+              placeholder="Escribe la pregunta"
+              value={formData.currentQuestion.text}
+              onChangeText={(text) => handleQuestionInput('text', text)}
+            />
+
+            {[0, 1, 2, 3].map((i) => (
+              <View key={i} style={styles.optionContainer}>
+                <Text style={styles.optionLetter}>{String.fromCharCode(65 + i)}.</Text>
+                <TextInput
+                  style={styles.optionInput}
+                  placeholder={`Opción ${String.fromCharCode(65 + i)}`}
+                  value={formData.currentQuestion.options[i]}
+                  onChangeText={(text) => handleQuestionInput('options', text, i)}
+                />
+                <Pressable
+                  style={[
+                    styles.radioButton,
+                    formData.currentQuestion.correctAnswer === i && styles.radioButtonSelected,
+                  ]}
+                  onPress={() => handleQuestionInput('correctAnswer', i)}
+                />
+              </View>
+            ))}
+
+            <TouchableOpacity style={styles.saveQuestionButton} onPress={saveQuestion}>
+              <Text style={styles.saveQuestionText}>Guardar Pregunta</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

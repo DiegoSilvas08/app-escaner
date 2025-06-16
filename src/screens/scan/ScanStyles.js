@@ -9,8 +9,8 @@ export const styles = StyleSheet.create({
   },
   backButton: {
     position: 'absolute',
-    top: height * 0.05,
-    left: 20,
+    top: height * 0.08,
+    left: 30,
     zIndex: 10,
   },
   container: {
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
     width: width * 0.9,
     height: 50,
     backgroundColor: '#f78219',
-    borderRadius: 12,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: '#f78219',
     marginBottom: 20,
@@ -47,7 +47,7 @@ export const styles = StyleSheet.create({
     width: width * 0.9,
     height: 50,
     backgroundColor: '#f78219',
-    borderRadius: 12,
+    borderRadius: 25,
     borderWidth: 2,
     borderColor: '#f78219',
     marginVertical: 10,

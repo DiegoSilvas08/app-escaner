@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { Camera, Calendar, DocumentText } from 'iconsax-react-native';
 import { useAuth } from '@/hooks/AuthContext';
-import { styles } from './HomeStyles';
+import styles from './HomeStyles';
 
 const HomeScreen = () => {
   const { signOut } = useAuth();
@@ -117,7 +117,7 @@ const HomeScreen = () => {
         {loading ? (
           <ActivityIndicator color="#fffde1" />
         ) : (
-          <Text style={styles.logoutText}>Cerrar sesión</Text>
+          <Text style={styles.logoutText}>Cerrar Sesión</Text>
         )}
       </TouchableOpacity>
     </ImageBackground>

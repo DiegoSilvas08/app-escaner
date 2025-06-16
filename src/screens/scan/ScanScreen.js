@@ -94,7 +94,7 @@ const ScanScreen = () => {
     >
       <View style={styles.overlay} />
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <ArrowLeft2 size={24} color="#fffde1" variant="Bold" />
+        <ArrowLeft2 size={35} color="#fffde1" variant="Bold" />
       </TouchableOpacity>
       <View style={styles.container}>
         <Animated.View style={{ transform: [{ scale }], opacity }}>
