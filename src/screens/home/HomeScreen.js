@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Camera, Calendar, DocumentText } from 'iconsax-react-native';
+import { Gallery, Calendar, DocumentText } from 'iconsax-react-native';
 import { useAuth } from '@/hooks/AuthContext';
 import styles from './HomeStyles';
 
@@ -92,7 +92,7 @@ const HomeScreen = () => {
           onPress={() => navigation.navigate('Scan')}
           activeOpacity={0.8}
         >
-          <Camera size={50} color="#fffde1" variant="Bold" />
+          <Gallery size={50} color="#fffde1" variant="Bold" />
           <Text style={styles.cardLabel}>Calificar Examen</Text>
         </TouchableOpacity>
       </Animated.View>
