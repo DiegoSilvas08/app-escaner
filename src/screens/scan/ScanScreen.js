@@ -1,4 +1,3 @@
-// src/screens/ScanScreen.js
 import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
@@ -8,9 +7,10 @@ import {
   Animated,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Camera, CloudArrowUp, Document, ArrowLeft2 } from 'iconsax-react-native';
+import { CloudArrowUp, Gallery, Note } from 'iconsax-react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, getDocs, serverTimestamp } from 'firebase/firestore';
@@ -26,8 +26,10 @@ const ScanScreen = () => {
   const [selectedExam, setSelectedExam] = useState(null);
   const [showExamList, setShowExamList] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [goingBack, setGoingBack] = useState(false);
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
+  const menuScale = useRef(new Animated.Value(1)).current;
 
   const scanDocument = async () => {
     if (!selectedExam) {return Alert.alert('Error', 'Selecciona un examen primero');}
@@ -63,26 +65,39 @@ const ScanScreen = () => {
     }
   };
 
+  const handleGoBack = () => {
+    setGoingBack(true);
+    navigation.goBack();
+  };
+
   useEffect(() => {
     Animated.loop(
       Animated.parallel([
         Animated.sequence([
-          Animated.timing(scale, { toValue: 1.02, duration: 2000, useNativeDriver: true }),
-          Animated.timing(scale, { toValue: 1, duration: 2000, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1.03, duration: 1500, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
         ]),
         Animated.sequence([
-          Animated.timing(opacity, { toValue: 0.97, duration: 2000, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 1, duration: 2000, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0.95, duration: 1500, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
         ]),
       ]),
     ).start();
-  }, [scale, opacity]);
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(menuScale, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
+        Animated.timing(menuScale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [scale, opacity, menuScale]);
 
   useEffect(() => {
-    (async () => {
+    const fetchExams = async () => {
       const snap = await getDocs(collection(db, 'exams'));
       setExams(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    })();
+    };
+    fetchExams();
   }, []);
 
   return (
@@ -93,42 +108,57 @@ const ScanScreen = () => {
       blurRadius={2}
     >
       <View style={styles.overlay} />
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <ArrowLeft2 size={35} color="#fffde1" variant="Bold" />
-      </TouchableOpacity>
-      <View style={styles.container}>
-        <Animated.View style={{ transform: [{ scale }], opacity }}>
-          <TouchableOpacity
-            style={styles.selectButton}
-            onPress={() => setShowExamList(true)}
-            activeOpacity={0.8}
-          >
-            <Document size={20} color="#fffde1" variant="Bold" />
-            <Text style={styles.selectText}>
-              {selectedExam?.name || 'Seleccionar Examen'}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionButton}
-            onPress={scanDocument}
-            activeOpacity={0.8}
-          >
-            <Camera size={28} color="#fffde1" variant="Bold" />
-            <Text style={styles.actionText}>Escanear Documento</Text>
-          </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>Gestión de Exámenes</Text>
+        <Animated.View style={[styles.buttonContainer, { transform: [{ scale }], opacity }]}>
+          <View style={styles.row}>
+            <TouchableOpacity
+              style={styles.card}
+              onPress={() => setShowExamList(true)}
+              activeOpacity={0.8}
+            >
+              <Note size={50} color="#fffde1" variant="Bold" />
+              <Text style={styles.cardLabel}>
+                {selectedExam?.name || 'Seleccionar Examen'}
+              </Text>
+            </TouchableOpacity>
+            <View style={styles.spacer} />
+            <TouchableOpacity
+              style={styles.card}
+              onPress={scanDocument}
+              activeOpacity={0.8}
+            >
+              <Gallery size={50} color="#fffde1" variant="Bold" />
+              <Text style={styles.cardLabel}>Escanear Documento</Text>
+            </TouchableOpacity>
+          </View>
           {scannedDoc && (
             <TouchableOpacity
-              style={styles.actionButton}
+              style={styles.uploadButton}
               onPress={uploadDocument}
               activeOpacity={0.8}
               disabled={loading}
             >
-              <CloudArrowUp size={28} color="#fffde1" variant="Bold" />
-              <Text style={styles.actionText}>
+              <CloudArrowUp size={40} color="#fffde1" variant="Bold" />
+              <Text style={styles.uploadText}>
                 {loading ? 'Subiendo...' : 'Subir Documento'}
               </Text>
             </TouchableOpacity>
           )}
+        </Animated.View>
+        <Animated.View style={{ transform: [{ scale: menuScale }] }}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={handleGoBack}
+            activeOpacity={0.8}
+            disabled={goingBack}
+          >
+            {goingBack ? (
+              <ActivityIndicator color="#fffde1" />
+            ) : (
+              <Text style={styles.menuButtonText}>Menú Principal</Text>
+            )}
+          </TouchableOpacity>
         </Animated.View>
       </View>
       {showExamList && (

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { DocumentText, Calendar as CalendarIcon, Book1 } from 'iconsax-react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Animated } from 'react-native';
+import { DocumentText, Calendar as CalendarIcon, Book1, Edit2, Trash } from 'iconsax-react-native';
 import firebase from '@/config/firebase';
 import { useNavigation } from '@react-navigation/native';
-import ReviewGradesStyles from './ReviewGradesStyles';
+import styles from './ReviewGradesStyles';
 
 const { db } = firebase;
 
@@ -11,6 +11,7 @@ const ReviewGradesScreen = () => {
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const menuScaleValue = useMemo(() => new Animated.Value(1), []);
 
   useEffect(() => {
     const fetchExams = async () => {
@@ -29,50 +30,89 @@ const ReviewGradesScreen = () => {
     };
 
     fetchExams();
-  }, []);
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(menuScaleValue, { toValue: 0.98, duration: 1500, useNativeDriver: true }),
+        Animated.timing(menuScaleValue, { toValue: 1, duration: 1500, useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [menuScaleValue]);
+
+  const handleDeleteExam = (id) => {
+    Alert.alert(
+      'Eliminar examen',
+      '¿Estás seguro de que quieres eliminar este examen?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => deleteExam(id),
+        },
+      ],
+    );
+  };
+
+  const deleteExam = async (id) => {
+    try {
+      await db.collection('exams').doc(id).delete();
+      setExams(exams.filter(exam => exam.id !== id));
+    } catch (error) {
+      Alert.alert('Error', 'No se pudo eliminar el examen');
+    }
+  };
 
   if (loading) {
     return (
-      <View style={ReviewGradesStyles.loadingContainer}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#f78219" />
       </View>
     );
   }
 
   return (
-    <View style={ReviewGradesStyles.container}>
-      <Text style={ReviewGradesStyles.title}>Exámenes Programados</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Exámenes Programados</Text>
 
       {exams.length === 0 ? (
-        <View style={ReviewGradesStyles.emptyContainer}>
-          <Text style={ReviewGradesStyles.emptyText}>No hay exámenes registrados</Text>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No hay exámenes registrados</Text>
         </View>
       ) : (
-        <ScrollView contentContainerStyle={ReviewGradesStyles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
           {exams.map((exam) => (
-            <View key={exam.id} style={ReviewGradesStyles.examCard}>
-              <View style={ReviewGradesStyles.cardHeader}>
+            <View key={exam.id} style={styles.examCard}>
+              <View style={styles.cardHeader}>
                 <Book1 size={20} color="#f78219" variant="Bold" />
-                <Text style={ReviewGradesStyles.examName}>{exam.name}</Text>
+                <Text style={styles.examName}>{exam.name}</Text>
+                <View style={styles.actionsContainer}>
+                  <TouchableOpacity onPress={() => navigation.navigate('EditExam', { examId: exam.id })}>
+                    <Edit2 size={20} color="#f78219" variant="Bold" style={styles.actionIcon} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDeleteExam(exam.id)}>
+                    <Trash size={20} color="#e74c3c" variant="Bold" />
+                  </TouchableOpacity>
+                </View>
               </View>
 
-              <View style={ReviewGradesStyles.cardRow}>
+              <View style={styles.cardRow}>
                 <DocumentText size={18} color="#666" variant="Outline" />
-                <Text style={ReviewGradesStyles.examText}>{exam.subject}</Text>
+                <Text style={styles.examText}>{exam.subject}</Text>
               </View>
 
-              <View style={ReviewGradesStyles.cardRow}>
+              <View style={styles.cardRow}>
                 <DocumentText size={18} color="#666" variant="Outline" />
-                <Text style={ReviewGradesStyles.examText}>Salón: {exam.classroom}</Text>
+                <Text style={styles.examText}>Salón: {exam.classroom}</Text>
               </View>
 
-              <View style={ReviewGradesStyles.cardRow}>
+              <View style={styles.cardRow}>
                 <CalendarIcon size={18} color="#666" variant="Outline" />
-                <Text style={ReviewGradesStyles.examText}>{exam.date}</Text>
+                <Text style={styles.examText}>{exam.date}</Text>
               </View>
 
-              <View style={ReviewGradesStyles.questionsInfo}>
-                <Text style={ReviewGradesStyles.questionsText}>
+              <View style={styles.questionsInfo}>
+                <Text style={styles.questionsText}>
                   {exam.questions.length} Preguntas
                 </Text>
               </View>
@@ -81,12 +121,14 @@ const ReviewGradesScreen = () => {
         </ScrollView>
       )}
 
-      <TouchableOpacity
-        style={ReviewGradesStyles.backButton}
-        onPress={() => navigation.goBack()}
-      >
-        <Text style={ReviewGradesStyles.backButtonText}>Menú Principal</Text>
-      </TouchableOpacity>
+      <Animated.View style={{ transform: [{ scale: menuScaleValue }] }}>
+        <TouchableOpacity
+          style={styles.menuButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Text style={styles.menuButtonText}>Menú Principal</Text>
+        </TouchableOpacity>
+      </Animated.View>
     </View>
   );
 };

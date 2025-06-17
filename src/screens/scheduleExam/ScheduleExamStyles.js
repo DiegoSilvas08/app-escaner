@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
@@ -47,6 +47,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     overflow: 'hidden',
     marginTop: 6,
+    height: 320,
   },
   selectedDateText: {
     marginTop: 10,
@@ -59,44 +60,60 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   button: {
-    flexDirection: 'row',
-    marginTop: -10,
-    alignItems: 'center',
+    width: '100%',
     height: 50,
     backgroundColor: '#f78219',
     borderRadius: 25,
-    borderWidth: 2,
-    borderColor: '#f78219',
     justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  printButtonContainer: {
+    marginTop: 10,
   },
   printButton: {
     width: '100%',
-    height: 45,
-    borderRadius: 22,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#61af58',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   menuButton: {
     width: '100%',
-    height: 45,
-    borderRadius: 22,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: '#f78219',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 15,
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   calendarHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 8,
-    marginBottom: 8,
   },
   headerMonth: {
     fontSize: 14,
@@ -125,11 +142,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
+  questionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   questionText: {
     fontSize: 14,
     color: '#333',
-    marginBottom: 5,
     fontWeight: '500',
+    flex: 1,
+  },
+  questionActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionIcon: {
+    marginRight: 10,
   },
   optionText: {
     fontSize: 13,
@@ -216,5 +246,3 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
-
-export default styles;

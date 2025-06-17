@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { View, TextInput, ScrollView, TouchableOpacity, Text, Alert, ActivityIndicator, Animated, Modal, Pressable } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Book1, DocumentText, Calendar as CalendarIcon, Add, CloseCircle } from 'iconsax-react-native';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { View, TextInput, ScrollView, TouchableOpacity, Text, Alert, ActivityIndicator, Animated, Modal, Pressable, BackHandler } from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { Book1, DocumentText, Calendar as CalendarIcon, Add, CloseCircle, Edit2, Trash } from 'iconsax-react-native';
 import { Calendar as CalendarComponent } from 'react-native-calendars';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
@@ -19,24 +19,37 @@ const ScheduleExamScreen = () => {
     selectedDate: '',
     dateRange: {},
     questions: [],
-    currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0 },
+    currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null },
   });
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const scaleValue = useMemo(() => new Animated.Value(1), []);
+  const printScaleValue = useMemo(() => new Animated.Value(1), []);
   const menuScaleValue = useMemo(() => new Animated.Value(1), []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate('Home');
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => backHandler.remove();
+    }, [navigation]),
+  );
 
   useEffect(() => {
     const createAnimation = (value) => Animated.loop(
       Animated.sequence([
-        Animated.timing(value, { toValue: 0.98, duration: 1000, useNativeDriver: true }),
-        Animated.timing(value, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        Animated.timing(value, { toValue: 0.98, duration: 1500, useNativeDriver: true }),
+        Animated.timing(value, { toValue: 1, duration: 1500, useNativeDriver: true }),
       ]),
     );
-    const anim1 = createAnimation(scaleValue).start();
-    const anim2 = createAnimation(menuScaleValue).start();
-    return () => { anim1.stop(); anim2.stop(); };
-  }, [scaleValue, menuScaleValue]);
+    createAnimation(scaleValue).start();
+    createAnimation(printScaleValue).start();
+    createAnimation(menuScaleValue).start();
+  }, [scaleValue, printScaleValue, menuScaleValue]);
 
   const handleDateSelect = (date) => {
     const startDate = new Date(date.dateString);
@@ -48,7 +61,7 @@ const ScheduleExamScreen = () => {
 
     while (currentDate <= endDate) {
       const dateStr = currentDate.toISOString().split('T')[0];
-      range[dateStr] = {selected: true, selectedColor: '#f78219'};
+      range[dateStr] = { selected: true, selectedColor: '#f78219' };
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
@@ -79,7 +92,41 @@ const ScheduleExamScreen = () => {
       Alert.alert('Límite alcanzado', 'Máximo 20 preguntas por examen');
       return;
     }
+    setFormData(prev => ({ ...prev, currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null } }));
     setModalVisible(true);
+  };
+
+  const handleEditQuestion = (index) => {
+    const questionToEdit = formData.questions[index];
+    setFormData(prev => ({
+      ...prev,
+      currentQuestion: {
+        ...questionToEdit,
+        editingIndex: index,
+      },
+    }));
+    setModalVisible(true);
+  };
+
+  const handleDeleteQuestion = (index) => {
+    Alert.alert(
+      'Eliminar pregunta',
+      '¿Estás seguro de que quieres eliminar esta pregunta?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            setFormData(prev => {
+              const newQuestions = [...prev.questions];
+              newQuestions.splice(index, 1);
+              return { ...prev, questions: newQuestions };
+            });
+          },
+        },
+      ],
+    );
   };
 
   const saveQuestion = () => {
@@ -88,11 +135,27 @@ const ScheduleExamScreen = () => {
       return;
     }
 
-    setFormData(prev => ({
-      ...prev,
-      questions: [...prev.questions, prev.currentQuestion],
-      currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0 },
-    }));
+    setFormData(prev => {
+      const newQuestions = [...prev.questions];
+      if (prev.currentQuestion.editingIndex !== null) {
+        newQuestions[prev.currentQuestion.editingIndex] = {
+          text: prev.currentQuestion.text,
+          options: prev.currentQuestion.options,
+          correctAnswer: prev.currentQuestion.correctAnswer,
+        };
+      } else {
+        newQuestions.push({
+          text: prev.currentQuestion.text,
+          options: prev.currentQuestion.options,
+          correctAnswer: prev.currentQuestion.correctAnswer,
+        });
+      }
+      return {
+        ...prev,
+        questions: newQuestions,
+        currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null },
+      };
+    });
     setModalVisible(false);
   };
 
@@ -113,7 +176,7 @@ const ScheduleExamScreen = () => {
         createdAt: firebaseInstance.firestore.FieldValue.serverTimestamp(),
       });
       Alert.alert('Éxito', 'Examen creado correctamente');
-      navigation.goBack();
+      navigation.navigate('Home');
     } catch (error) {
       Alert.alert('Error', 'Error al guardar el examen');
     } finally {
@@ -191,8 +254,25 @@ const ScheduleExamScreen = () => {
     monthNamesShort: ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'],
     dayNames: ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
     dayNamesShort: ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'],
+    'stylesheet.calendar.main': {
+      week: {
+        marginTop: 0,
+        marginBottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        height: 32,
+      },
+    },
     'stylesheet.calendar.header': {
-      header: { flexDirection: 'row', justifyContent: 'space-between', paddingLeft: 10, paddingRight: 10, alignItems: 'center' },
+      header: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 10,
+        paddingRight: 10,
+        alignItems: 'center',
+        marginBottom: 0,
+        paddingBottom: 0,
+      },
     },
   };
 
@@ -267,7 +347,17 @@ const ScheduleExamScreen = () => {
 
           {formData.questions.map((q, i) => (
             <View key={i} style={styles.questionItem}>
-              <Text style={styles.questionText}>{i + 1}. {q.text}</Text>
+              <View style={styles.questionHeader}>
+                <Text style={styles.questionText}>{i + 1}. {q.text}</Text>
+                <View style={styles.questionActions}>
+                  <TouchableOpacity onPress={() => handleEditQuestion(i)}>
+                    <Edit2 size={18} color="#f78219" variant="Bold" style={styles.actionIcon} />
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleDeleteQuestion(i)}>
+                    <Trash size={18} color="#e74c3c" variant="Bold" />
+                  </TouchableOpacity>
+                </View>
+              </View>
               {q.options.map((opt, j) => (
                 <Text key={j} style={styles.optionText}>{String.fromCharCode(65 + j)}. {opt}</Text>
               ))}
@@ -279,38 +369,46 @@ const ScheduleExamScreen = () => {
         <View style={styles.buttonContainer}>
           {loading ? <ActivityIndicator size="small" color="#f78219" /> : (
             <>
-              <TouchableOpacity
-                style={[styles.button, { transform: [{ scale: scaleValue }] }]}
-                onPress={saveNewExam}
-              >
-                <Text style={styles.buttonText}>Guardar Examen</Text>
-              </TouchableOpacity>
+              <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={saveNewExam}
+                >
+                  <Text style={styles.buttonText}>Guardar Examen</Text>
+                </TouchableOpacity>
+              </Animated.View>
 
               {formData.questions.length > 0 && (
-                <TouchableOpacity
-                  style={[styles.printButton, { transform: [{ scale: scaleValue }] }]}
-                  onPress={generateAndSharePDF}
-                >
-                  <Text style={styles.buttonText}>Generar PDF</Text>
-                </TouchableOpacity>
+                <Animated.View style={[styles.printButtonContainer, { transform: [{ scale: printScaleValue }] }]}>
+                  <TouchableOpacity
+                    style={styles.printButton}
+                    onPress={generateAndSharePDF}
+                  >
+                    <Text style={styles.buttonText}>Generar PDF</Text>
+                  </TouchableOpacity>
+                </Animated.View>
               )}
             </>
           )}
         </View>
 
-        <TouchableOpacity
-          style={[styles.menuButton, { transform: [{ scale: menuScaleValue }] }]}
-          onPress={() => navigation.navigate('Home')}
-        >
-          <Text style={styles.buttonText}>Menú Principal</Text>
-        </TouchableOpacity>
+        <Animated.View style={{ transform: [{ scale: menuScaleValue }] }}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Text style={styles.buttonText}>Menú Principal</Text>
+          </TouchableOpacity>
+        </Animated.View>
       </ScrollView>
 
       <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Nueva Pregunta</Text>
+              <Text style={styles.modalTitle}>
+                {formData.currentQuestion.editingIndex !== null ? 'Editar Pregunta' : 'Nueva Pregunta'}
+              </Text>
               <Pressable onPress={() => setModalVisible(false)}>
                 <CloseCircle size={24} color="#f78219" />
               </Pressable>
@@ -343,7 +441,9 @@ const ScheduleExamScreen = () => {
             ))}
 
             <TouchableOpacity style={styles.saveQuestionButton} onPress={saveQuestion}>
-              <Text style={styles.saveQuestionText}>Guardar Pregunta</Text>
+              <Text style={styles.saveQuestionText}>
+                {formData.currentQuestion.editingIndex !== null ? 'Actualizar Pregunta' : 'Guardar Pregunta'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

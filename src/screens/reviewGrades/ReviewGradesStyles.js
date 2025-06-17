@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-const styles = StyleSheet.create({
+export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f6fa',
@@ -47,6 +47,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
     marginLeft: 10,
+    flex: 1,
+  },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  actionIcon: {
+    marginRight: 15,
   },
   cardRow: {
     flexDirection: 'row',
@@ -79,18 +87,27 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#999',
   },
-  backButton: {
-    marginBottom: 60,
+  menuButton: {
+    width: '100%',
+    height: 50,
     backgroundColor: '#f78219',
-    padding: 12,
     borderRadius: 25,
+    justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+    marginBottom: 30,
   },
-  backButtonText: {
+  menuButtonText: {
     color: '#fff',
-    fontWeight: '600',
     fontSize: 16,
+    fontWeight: '600',
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });
-
-export default styles;
