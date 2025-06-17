@@ -4,17 +4,15 @@ import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import PropTypes from 'prop-types';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { GoogleAuthProvider, getAuth, signInWithCredential } from '@react-native-firebase/auth';
 import { validateEmail } from '@/utils/index';
-import firebase from '@/config/firebase';
+import auth, { GoogleAuthProvider } from '@react-native-firebase/auth';
 
 const AuthContext = createContext(null);
-const { auth } = firebase;
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [fbUser, fbUserLoading] = useAuthState(auth);
+  const [fbUser, fbUserLoading] = useAuthState(auth());
 
   const requestCameraPermission = async () => {
     if (Platform.OS === 'android') {
@@ -62,7 +60,7 @@ export function AuthProvider({ children }) {
       return;
     }
     try {
-      await auth.signInWithEmailAndPassword(email, password);
+      await auth().signInWithEmailAndPassword(email, password);
     } catch (error) {
       Alert.alert('Error', 'Error al iniciar sesión: ' + error.message);
     }
@@ -71,26 +69,37 @@ export function AuthProvider({ children }) {
   const signInWithGoogle = useCallback(async () => {
     try {
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      const signInResult = await GoogleSignin.signIn();
+      const userInfo = await GoogleSignin.signIn();
+      const { idToken, accessToken } = await GoogleSignin.getTokens();
 
-      let idToken = signInResult.data?.idToken;
-      const googleCredential = GoogleAuthProvider?.credential(idToken);
-      await signInWithCredential(getAuth(), googleCredential);
+      if (!idToken) throw new Error('No se pudo obtener el ID Token');
+
+      const credential = GoogleAuthProvider.credential(idToken);
+      await auth().signInWithCredential(credential);
+
+      console.log('Token de acceso:', accessToken); // Opcional: úsalo si necesitas acceso a APIs de Google
+
     } catch (error) {
       console.error('Google Sign-In Error:', error);
-      throw error;
+      Alert.alert('Error', error.message || 'No se pudo iniciar sesión con Google');
     }
   }, []);
 
   const signOut = useCallback(async () => {
     try {
-      await auth.signOut();
+      await auth().signOut();
     } catch (error) {
       Alert.alert('Error', 'Error al cerrar sesión: ' + error.message);
     }
   }, []);
 
   useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '703434058862-80ls0k2798jhflp88a73et5jb1216dkg.apps.googleusercontent.com',
+      offlineAccess: true,
+      scopes: ['https://www.googleapis.com/auth/calendar'],
+    });
+
     requestCameraPermission();
   }, []);
 
@@ -99,16 +108,13 @@ export function AuthProvider({ children }) {
     setAuthLoading(fbUserLoading);
   }, [fbUser, fbUserLoading]);
 
-  const memData = useMemo(
-    () => ({
-      user,
-      signIn,
-      signInWithGoogle,
-      signOut,
-      authLoading,
-    }),
-    [user, signIn, signInWithGoogle, signOut, authLoading],
-  );
+  const memData = useMemo(() => ({
+    user,
+    signIn,
+    signInWithGoogle,
+    signOut,
+    authLoading,
+  }), [user, signIn, signInWithGoogle, signOut, authLoading]);
 
   return <AuthContext.Provider value={memData}>{children}</AuthContext.Provider>;
 }
