@@ -1,25 +1,36 @@
 import { StyleSheet, Dimensions } from 'react-native';
+
 const { width, height } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
-  background: { flex: 1 },
+  background: {
+    flex: 1,
+  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  headerWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    marginLeft: 15,
+  },
+  headerImage: {
+    width: width * 0.95,
+    height: height * 0.25,
   },
   contentContainer: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: height * 0.1,
+    paddingTop: 10,
     paddingHorizontal: 20,
   },
   title: {
-    marginTop: 140,
     fontSize: 24,
     color: '#fffde1',
     fontWeight: '700',
-    marginBottom: 30,
+    marginBottom: 20,
     textShadowColor: 'rgba(0, 0, 0, 0.3)',
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 3,

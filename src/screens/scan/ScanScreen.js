@@ -8,6 +8,7 @@ import {
   FlatList,
   Alert,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CloudArrowUp, Gallery, Note } from 'iconsax-react-native';
@@ -32,17 +33,25 @@ const ScanScreen = () => {
   const menuScale = useRef(new Animated.Value(1)).current;
 
   const scanDocument = async () => {
-    if (!selectedExam) {return Alert.alert('Error', 'Selecciona un examen primero');}
+    if (!selectedExam) {
+      Alert.alert('Error', 'Selecciona un examen primero');
+      return;
+    }
     try {
       const { scannedImages } = await DocumentScanner.scanDocument({ croppedImageQuality: 100 });
-      if (scannedImages.length) {setScannedDoc(scannedImages[0]);}
+      if (scannedImages.length) {
+        setScannedDoc(scannedImages[0]);
+      }
     } catch {
       Alert.alert('Error', 'No se pudo escanear el documento');
     }
   };
 
   const uploadDocument = async () => {
-    if (!scannedDoc) {return Alert.alert('Error', 'Escanea un documento primero');}
+    if (!scannedDoc) {
+      Alert.alert('Error', 'Escanea un documento primero');
+      return;
+    }
     setLoading(true);
     try {
       const resp = await fetch(scannedDoc);
@@ -108,6 +117,13 @@ const ScanScreen = () => {
       blurRadius={2}
     >
       <View style={styles.overlay} />
+      <View style={styles.headerWrapper}>
+        <Image
+          source={require('../../../assets/header.png')}
+          style={styles.headerImage}
+          resizeMode="contain"
+        />
+      </View>
       <View style={styles.contentContainer}>
         <Text style={styles.title}>Gestión de Exámenes</Text>
         <Animated.View style={[styles.buttonContainer, { transform: [{ scale }], opacity }]}>
