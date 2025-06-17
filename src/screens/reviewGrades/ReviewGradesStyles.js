@@ -1,49 +1,68 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 
-export default StyleSheet.create({
-  container: {
+const { width, height } = Dimensions.get('window');
+
+export const styles = StyleSheet.create({
+  background: {
     flex: 1,
-    backgroundColor: '#f5f6fa',
-    padding: 15,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  headerWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    marginLeft: 15,
+  },
+  headerImage: {
+    width: width * 0.95,
+    height: height * 0.25,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 15,
+    marginTop: -60,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6fa',
   },
   title: {
-    marginTop: 30,
     fontSize: 22,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 40,
+    fontWeight: '700',
+    color: '#fffde1',
+    marginBottom: 20,
     textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
   },
   scrollContainer: {
-    paddingBottom: 20,
+    paddingBottom: 15,
   },
   examCard: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: 12,
     padding: 15,
-    marginBottom: 15,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
     paddingBottom: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: 'rgba(0, 0, 0, 0.08)',
   },
   examName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#333',
     marginLeft: 10,
@@ -54,7 +73,7 @@ export default StyleSheet.create({
     alignItems: 'center',
   },
   actionIcon: {
-    marginRight: 15,
+    marginRight: 12,
   },
   cardRow: {
     flexDirection: 'row',
@@ -63,14 +82,15 @@ export default StyleSheet.create({
   },
   examText: {
     fontSize: 14,
-    color: '#666',
+    color: '#555',
     marginLeft: 10,
+    fontWeight: '500',
   },
   questionsInfo: {
     marginTop: 10,
     paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(0, 0, 0, 0.08)',
     alignItems: 'flex-end',
   },
   questionsText: {
@@ -82,10 +102,16 @@ export default StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginTop: 50,
   },
   emptyText: {
     fontSize: 16,
-    color: '#999',
+    color: '#fffde1',
+    fontWeight: '500',
+  },
+  menuButtonContainer: {
+    marginTop: 10,
+    marginBottom: 20,
   },
   menuButton: {
     width: '100%',
@@ -94,16 +120,15 @@ export default StyleSheet.create({
     borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
     marginBottom: 30,
   },
   menuButtonText: {
-    color: '#fff',
+    color: '#fffde1',
     fontSize: 16,
     fontWeight: '600',
     textShadowColor: 'rgba(0, 0, 0, 0.2)',

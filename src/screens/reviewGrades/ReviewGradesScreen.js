@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Animated } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, Alert, Animated, ImageBackground, Image } from 'react-native';
 import { DocumentText, Calendar as CalendarIcon, Book1, Edit2, Trash } from 'iconsax-react-native';
 import firebase from '@/config/firebase';
 import { useNavigation } from '@react-navigation/native';
-import styles from './ReviewGradesStyles';
+import { styles } from './ReviewGradesStyles';
 
 const { db } = firebase;
 
@@ -65,71 +65,84 @@ const ReviewGradesScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#f78219" />
-      </View>
+      <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
+        <View style={styles.overlay} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#f78219" />
+        </View>
+      </ImageBackground>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Exámenes Programados</Text>
+    <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
+      <View style={styles.overlay} />
+      <View style={styles.headerWrapper}>
+        <Image source={require('../../../assets/header.png')} style={styles.headerImage} resizeMode="contain" />
+      </View>
 
-      {exams.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No hay exámenes registrados</Text>
-        </View>
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          {exams.map((exam) => (
-            <View key={exam.id} style={styles.examCard}>
-              <View style={styles.cardHeader}>
-                <Book1 size={20} color="#f78219" variant="Bold" />
-                <Text style={styles.examName}>{exam.name}</Text>
-                <View style={styles.actionsContainer}>
-                  <TouchableOpacity onPress={() => navigation.navigate('EditExam', { examId: exam.id })}>
-                    <Edit2 size={20} color="#f78219" variant="Bold" style={styles.actionIcon} />
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDeleteExam(exam.id)}>
-                    <Trash size={20} color="#e74c3c" variant="Bold" />
-                  </TouchableOpacity>
+      <View style={styles.contentContainer}>
+        <Text style={styles.title}>Exámenes Programados</Text>
+
+        {exams.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No hay exámenes registrados</Text>
+          </View>
+        ) : (
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            {exams.map((exam) => (
+              <View key={exam.id} style={styles.examCard}>
+                <View style={styles.cardHeader}>
+                  <Book1 size={18} color="#f78219" variant="Bold" />
+                  <Text style={styles.examName}>{exam.name}</Text>
+                  <View style={styles.actionsContainer}>
+                    <TouchableOpacity onPress={() => navigation.navigate('EditExam', { examId: exam.id })}>
+                      <Edit2 size={18} color="#008f39" variant="Bold" style={styles.actionIcon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDeleteExam(exam.id)}>
+                      <Trash size={18} color="#ff0000" variant="Bold" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <View style={styles.cardRow}>
+                  <DocumentText size={16} color="#666" variant="Outline" />
+                  <Text style={styles.examText}>{exam.subject}</Text>
+                </View>
+
+                <View style={styles.cardRow}>
+                  <DocumentText size={16} color="#666" variant="Outline" />
+                  <Text style={styles.examText}>Salón: {exam.classroom}</Text>
+                </View>
+
+                <View style={styles.cardRow}>
+                  <CalendarIcon size={16} color="#666" variant="Outline" />
+                  <Text style={styles.examText}>{exam.date}</Text>
+                </View>
+
+                <View style={styles.questionsInfo}>
+                  <Text style={styles.questionsText}>
+                    {exam.questions.length} Preguntas
+                  </Text>
                 </View>
               </View>
+            ))}
+          </ScrollView>
+        )}
 
-              <View style={styles.cardRow}>
-                <DocumentText size={18} color="#666" variant="Outline" />
-                <Text style={styles.examText}>{exam.subject}</Text>
-              </View>
-
-              <View style={styles.cardRow}>
-                <DocumentText size={18} color="#666" variant="Outline" />
-                <Text style={styles.examText}>Salón: {exam.classroom}</Text>
-              </View>
-
-              <View style={styles.cardRow}>
-                <CalendarIcon size={18} color="#666" variant="Outline" />
-                <Text style={styles.examText}>{exam.date}</Text>
-              </View>
-
-              <View style={styles.questionsInfo}>
-                <Text style={styles.questionsText}>
-                  {exam.questions.length} Preguntas
-                </Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      )}
-
-      <Animated.View style={{ transform: [{ scale: menuScaleValue }] }}>
-        <TouchableOpacity
-          style={styles.menuButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Text style={styles.menuButtonText}>Menú Principal</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+        <Animated.View style={[styles.menuButtonContainer, { transform: [{ scale: menuScaleValue }] }]}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Text style={styles.menuButtonText}>Menú Principal</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </View>
+    </ImageBackground>
   );
 };
 

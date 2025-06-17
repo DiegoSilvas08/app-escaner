@@ -93,7 +93,7 @@ export default StyleSheet.create({
   },
   logout: {
     flexDirection: 'row',
-    marginTop: 180,
+    marginTop: 170,
     alignItems: 'center',
     width: width * 0.9,
     height: 50,
@@ -101,7 +101,7 @@ export default StyleSheet.create({
     borderRadius: 25,
     borderWidth: 2,
     borderColor: '#f78219',
-    marginBottom: 20,
+    marginBottom: 60,
     justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

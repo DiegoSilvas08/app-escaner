@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-export default StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 15,
@@ -71,6 +71,7 @@ export default StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
+    marginTop: -10,
   },
   printButtonContainer: {
     marginTop: 10,
@@ -246,3 +247,5 @@ export default StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default styles;

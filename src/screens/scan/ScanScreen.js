@@ -145,7 +145,7 @@ const ScanScreen = () => {
               activeOpacity={0.8}
             >
               <Gallery size={50} color="#fffde1" variant="Bold" />
-              <Text style={styles.cardLabel}>Escanear Documento</Text>
+              <Text style={styles.cardLabel}>Subir Examenes</Text>
             </TouchableOpacity>
           </View>
           {scannedDoc && (

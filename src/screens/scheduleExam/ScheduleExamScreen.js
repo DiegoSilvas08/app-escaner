@@ -33,7 +33,6 @@ const ScheduleExamScreen = () => {
         navigation.navigate('Home');
         return true;
       };
-
       const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
       return () => backHandler.remove();
     }, [navigation]),
@@ -55,7 +54,6 @@ const ScheduleExamScreen = () => {
     const startDate = new Date(date.dateString);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 13);
-
     const range = {};
     let currentDate = new Date(startDate);
 
@@ -114,17 +112,13 @@ const ScheduleExamScreen = () => {
       '¿Estás seguro de que quieres eliminar esta pregunta?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: () => {
-            setFormData(prev => {
-              const newQuestions = [...prev.questions];
-              newQuestions.splice(index, 1);
-              return { ...prev, questions: newQuestions };
-            });
-          },
-        },
+        { text: 'Eliminar', style: 'destructive', onPress: () => {
+          setFormData(prev => {
+            const newQuestions = [...prev.questions];
+            newQuestions.splice(index, 1);
+            return { ...prev, questions: newQuestions };
+          });
+        }},
       ],
     );
   };
@@ -184,7 +178,46 @@ const ScheduleExamScreen = () => {
     }
   };
 
-  const generateAndSharePDF = async () => {
+  const generateAnswerKeyPDF = async () => {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial; padding: 20px; }
+            h1 { color: #f78219; text-align: center; }
+            .info { margin-bottom: 20px; }
+            .question { margin-bottom: 15px; }
+            .correct { color: #4CAF50; font-weight: bold; }
+          </style>
+        </head>
+        <body>
+          <h1>Clave de Respuestas - ${formData.examName}</h1>
+          <div class="info">
+            <p><strong>Materia:</strong> ${formData.subject}</p>
+            <p><strong>Salón:</strong> ${formData.classroom}</p>
+            <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
+          </div>
+          ${formData.questions.map((q, i) => `
+            <div class="question">
+              <p><strong>${i + 1}.</strong> ${q.text}</p>
+              <p class="correct">Respuesta correcta: ${String.fromCharCode(65 + q.correctAnswer)}. ${q.options[q.correctAnswer]}</p>
+            </div>
+          `).join('')}
+        </body>
+      </html>
+    `;
+
+    const options = {
+      html: htmlContent,
+      fileName: `Clave_Respuestas_${formData.examName.replace(/\s+/g, '_')}`,
+      directory: 'Documents',
+    };
+
+    const file = await RNHTMLtoPDF.convert(options);
+    return file.filePath;
+  };
+
+  const generateExamPDF = async () => {
     const htmlContent = `
       <html>
         <head>
@@ -194,7 +227,6 @@ const ScheduleExamScreen = () => {
             .info { margin-bottom: 20px; }
             .question { margin-bottom: 15px; }
             .options { margin-left: 20px; }
-            .correct { color: #4CAF50; font-weight: bold; }
           </style>
         </head>
         <body>
@@ -210,27 +242,40 @@ const ScheduleExamScreen = () => {
               <div class="options">
                 ${q.options.map((opt, j) => `<p>${String.fromCharCode(65 + j)}. ${opt}</p>`).join('')}
               </div>
-              <p class="correct">Respuesta correcta: ${String.fromCharCode(65 + q.correctAnswer)}</p>
             </div>
           `).join('')}
         </body>
       </html>
     `;
 
+    const options = {
+      html: htmlContent,
+      fileName: `Examen_${formData.examName.replace(/\s+/g, '_')}`,
+      directory: 'Documents',
+    };
+
+    const file = await RNHTMLtoPDF.convert(options);
+    return file.filePath;
+  };
+
+  const generateAndSharePDFs = async () => {
     try {
-      const { filePath } = await RNHTMLtoPDF.convert({
-        html: htmlContent,
-        fileName: `Examen_${formData.examName.replace(/\s+/g, '_')}`,
-        directory: 'Documents',
-      });
+      setLoading(true);
+      const examPath = await generateExamPDF();
+      const answerKeyPath = await generateAnswerKeyPDF();
 
       await Share.open({
-        title: 'Compartir examen',
-        url: `file://${filePath}`,
+        title: 'Compartir Examen',
+        urls: [
+          `file://${examPath}`,
+          `file://${answerKeyPath}`,
+        ],
         type: 'application/pdf',
       });
     } catch (error) {
-      Alert.alert('Error', 'No se pudo generar el PDF');
+      Alert.alert('Error', 'No se pudieron generar los PDFs');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -382,9 +427,9 @@ const ScheduleExamScreen = () => {
                 <Animated.View style={[styles.printButtonContainer, { transform: [{ scale: printScaleValue }] }]}>
                   <TouchableOpacity
                     style={styles.printButton}
-                    onPress={generateAndSharePDF}
+                    onPress={generateAndSharePDFs}
                   >
-                    <Text style={styles.buttonText}>Generar PDF</Text>
+                    <Text style={styles.buttonText}>Generar PDFs</Text>
                   </TouchableOpacity>
                 </Animated.View>
               )}

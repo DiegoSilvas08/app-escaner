@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Gallery, Calendar, DocumentText } from 'iconsax-react-native';
+import { TickSquare, Calendar, DocumentText } from 'iconsax-react-native';
 import { useAuth } from '@/hooks/AuthContext';
 import styles from './HomeStyles';
 
@@ -92,7 +92,7 @@ const HomeScreen = () => {
           onPress={() => navigation.navigate('Scan')}
           activeOpacity={0.8}
         >
-          <Gallery size={50} color="#fffde1" variant="Bold" />
+          <TickSquare size={50} color="#fffde1" variant="Bold" />
           <Text style={styles.cardLabel}>Calificar Examen</Text>
         </TouchableOpacity>
       </Animated.View>
@@ -104,7 +104,7 @@ const HomeScreen = () => {
           activeOpacity={0.8}
         >
           <DocumentText size={40} color="#fffde1" variant="Bold" />
-          <Text style={styles.bottomCardLabel}>Revisar Calificaciones</Text>
+          <Text style={styles.bottomCardLabel}>Examenes y Calificaciones</Text>
         </TouchableOpacity>
       </Animated.View>
 
