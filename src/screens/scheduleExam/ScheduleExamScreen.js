@@ -208,9 +208,9 @@ const ScheduleExamScreen = () => {
       <html>
         <head>
           <style>
-            body { font-family: Arial; padding: 15px; }
+            body { font-family: Arial; padding: 13px; }
             h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 15px; }
+            .info { margin-bottom: 13px; }
             .question { margin-bottom: 13px; }
             .correct { color: #4CAF50; font-weight: bold; }
           </style>
@@ -247,11 +247,11 @@ const ScheduleExamScreen = () => {
       <html>
         <head>
           <style>
-            body { font-family: Arial; padding: 15px; }
+            body { font-family: Arial; padding: 13px; }
             h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 15px; }
+            .info { margin-bottom: 13px; }
             .question { margin-bottom: 13px; }
-            .options { margin-left: 15px; }
+            .options { margin-left: 13px; }
           </style>
         </head>
         <body>
