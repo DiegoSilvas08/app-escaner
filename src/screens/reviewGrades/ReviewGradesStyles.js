@@ -125,11 +125,11 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
-    marginBottom: 30,
+    marginBottom: 60,
   },
   menuButtonText: {
     color: '#fffde1',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     textShadowColor: 'rgba(0, 0, 0, 0.2)',
     textShadowOffset: { width: 1, height: 1 },

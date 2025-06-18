@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 6,
-    marginTop: -10,
+    marginTop: -20,
   },
   printButtonContainer: {
     marginTop: 10,

@@ -98,7 +98,7 @@ export const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   menuButton: {
-    marginTop: 120,
+    marginTop: 240,
     width: width * 0.9,
     height: 50,
     backgroundColor: '#f78219',
