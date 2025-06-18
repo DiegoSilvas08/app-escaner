@@ -7,9 +7,13 @@ import {
   Image,
   Animated,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { TickSquare, Calendar, DocumentText } from 'iconsax-react-native';
+import { TickSquare, TaskSquare, Calendar, ArchiveBook } from 'iconsax-react-native';
+import RNFS from 'react-native-fs';
+import RNPrint from 'react-native-print';
+import Share from 'react-native-share';
 import { useAuth } from '@/hooks/AuthContext';
 import styles from './HomeStyles';
 
@@ -26,6 +30,26 @@ const HomeScreen = () => {
     setLoading(true);
     await signOut();
     setLoading(false);
+  };
+
+  const handlePdf = async () => {
+    const fileName = 'Hoja_de_respuestas.pdf';
+
+    const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
+    const exists = await RNFS.exists(filePath);
+
+    if (!exists) {
+      const pdfData = await RNFS.readFileAssets(fileName, 'base64');
+      await RNFS.writeFile(filePath, pdfData, 'base64');
+    }
+
+    await Share.open({
+      url: Platform.OS === 'android' ? `file://${filePath}` : filePath,
+      type: 'application/pdf',
+      failOnCancel: false,
+    });
+
+    await RNPrint.print({ filePath });
   };
 
   useEffect(() => {
@@ -71,6 +95,7 @@ const HomeScreen = () => {
           resizeMode="contain"
         />
       </View>
+
       <View style={styles.titleContainer}>
         <Text style={styles.menuTitle}>Selecciona una opción</Text>
       </View>
@@ -103,8 +128,20 @@ const HomeScreen = () => {
           onPress={() => navigation.navigate('ReviewGrades')}
           activeOpacity={0.8}
         >
-          <DocumentText size={40} color="#fffde1" variant="Bold" />
+          <ArchiveBook size={40} color="#fffde1" variant="Bold" />
           <Text style={styles.bottomCardLabel}>Examenes y Calificaciones</Text>
+        </TouchableOpacity>
+
+        <View style={styles.spacer} />
+
+
+        <TouchableOpacity
+          style={styles.bottomCard}
+          onPress={handlePdf}
+          activeOpacity={0.8}
+        >
+          <TaskSquare size={40} color="#fffde1" variant="Bold" />
+          <Text style={styles.bottomCardLabel}>Hoja de Respuestas</Text>
         </TouchableOpacity>
       </Animated.View>
 

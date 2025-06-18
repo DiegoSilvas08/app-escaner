@@ -93,7 +93,7 @@ export default StyleSheet.create({
   },
   logout: {
     flexDirection: 'row',
-    marginTop: 170,
+    marginTop: 80,
     alignItems: 'center',
     width: width * 0.9,
     height: 50,
@@ -116,4 +116,8 @@ export default StyleSheet.create({
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
+  spacer: {
+    height: 20,
+  },
+
 });

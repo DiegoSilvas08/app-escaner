@@ -272,8 +272,8 @@ const ScheduleExamScreen = () => {
         ],
         type: 'application/pdf',
       });
-    } catch (error) {
-      Alert.alert('Error', 'No se pudieron generar los PDFs');
+    //} catch (error) {
+    // Alert.alert('Error', 'No se pudieron generar los PDFs');
     } finally {
       setLoading(false);
     }
