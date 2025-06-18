@@ -1,6 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "com.google.gms.google-services"
 
 react {
     autolinkLibrariesWithApp()
@@ -15,6 +16,7 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.appescaner"
+
     defaultConfig {
         applicationId "com.appescaner"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -67,4 +69,3 @@ dependencies {
     }
 }
 
-apply plugin: 'com.google.gms.google-services'
