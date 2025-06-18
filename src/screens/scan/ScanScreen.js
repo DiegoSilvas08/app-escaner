@@ -1,15 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-  Animated,
-  FlatList,
-  Alert,
-  ActivityIndicator,
-  Image,
-} from 'react-native';
+import { View, Text, TouchableOpacity, ImageBackground, Animated, FlatList, Alert, ActivityIndicator, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CloudArrowUp, Gallery, Note } from 'iconsax-react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
@@ -28,9 +18,46 @@ const ScanScreen = () => {
   const [showExamList, setShowExamList] = useState(false);
   const [loading, setLoading] = useState(false);
   const [goingBack, setGoingBack] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const scale = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(1)).current;
   const menuScale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const fetchExams = async () => {
+      try {
+        const snap = await getDocs(collection(db, 'exams'));
+        setExams(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      } catch {
+        Alert.alert('Error', 'No se pudieron cargar los exámenes');
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+    fetchExams();
+  }, []);
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.parallel([
+        Animated.sequence([
+          Animated.timing(scale, { toValue: 1.03, duration: 1500, useNativeDriver: true }),
+          Animated.timing(scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+        Animated.sequence([
+          Animated.timing(opacity, { toValue: 0.95, duration: 1500, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
+        ]),
+      ]),
+    ).start();
+
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(menuScale, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
+        Animated.timing(menuScale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+      ]),
+    ).start();
+  }, [scale, opacity, menuScale]);
 
   const scanDocument = async () => {
     if (!selectedExam) {
@@ -79,50 +106,22 @@ const ScanScreen = () => {
     navigation.goBack();
   };
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(scale, { toValue: 1.03, duration: 1500, useNativeDriver: true }),
-          Animated.timing(scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        ]),
-        Animated.sequence([
-          Animated.timing(opacity, { toValue: 0.95, duration: 1500, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        ]),
-      ]),
-    ).start();
-
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(menuScale, { toValue: 1.02, duration: 1500, useNativeDriver: true }),
-        Animated.timing(menuScale, { toValue: 1, duration: 1500, useNativeDriver: true }),
-      ]),
-    ).start();
-  }, [scale, opacity, menuScale]);
-
-  useEffect(() => {
-    const fetchExams = async () => {
-      const snap = await getDocs(collection(db, 'exams'));
-      setExams(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    };
-    fetchExams();
-  }, []);
+  if (initialLoading) {
+    return (
+      <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
+        <View style={styles.overlay} />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#f78219" />
+        </View>
+      </ImageBackground>
+    );
+  }
 
   return (
-    <ImageBackground
-      source={require('../../../assets/home-background.png')}
-      style={styles.background}
-      resizeMode="cover"
-      blurRadius={2}
-    >
+    <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
       <View style={styles.overlay} />
       <View style={styles.headerWrapper}>
-        <Image
-          source={require('../../../assets/header.png')}
-          style={styles.headerImage}
-          resizeMode="contain"
-        />
+        <Image source={require('../../../assets/header.png')} style={styles.headerImage} resizeMode="contain" />
       </View>
       <View style={styles.contentContainer}>
         <Text style={styles.title}>Gestión de Exámenes</Text>
@@ -145,7 +144,7 @@ const ScanScreen = () => {
               activeOpacity={0.8}
             >
               <Gallery size={50} color="#fffde1" variant="Bold" />
-              <Text style={styles.cardLabel}>Subir Examenes</Text>
+              <Text style={styles.cardLabel}>Escanear Examen</Text>
             </TouchableOpacity>
           </View>
           {scannedDoc && (

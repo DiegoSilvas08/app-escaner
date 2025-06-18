@@ -13,21 +13,22 @@ import {
   BackHandler,
   ImageBackground,
   Image,
-  Dimensions,
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Book1, DocumentText, Calendar as CalendarIcon, Add, CloseCircle, Edit2, Trash } from 'iconsax-react-native';
+import { useNavigation, useRoute, useFocusEffect } from '@react-navigation/native';
+import { Book, DocumentText, Calendar as CalendarIcon, Add, CloseCircle, Edit2, Trash } from 'iconsax-react-native';
 import { Calendar as CalendarComponent } from 'react-native-calendars';
 import RNHTMLtoPDF from 'react-native-html-to-pdf';
 import Share from 'react-native-share';
 import firebase from '@/config/firebase';
-import styles from './ScheduleExamStyles.js';
+import styles from './EditExamStyles';
 
-Dimensions.get('window');
 const { db, firebase: firebaseInstance } = firebase;
 
-const ScheduleExamScreen = () => {
+const EditExamScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { examId } = route.params;
+
   const [formData, setFormData] = useState({
     subject: '',
     examName: '',
@@ -37,25 +38,48 @@ const ScheduleExamScreen = () => {
     questions: [],
     currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null },
   });
+
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true);
   const scaleValue = useMemo(() => new Animated.Value(1), []);
   const printScaleValue = useMemo(() => new Animated.Value(1), []);
   const menuScaleValue = useMemo(() => new Animated.Value(1), []);
 
+  useEffect(() => {
+    const fetchExamData = async () => {
+      try {
+        setLoading(true);
+        const doc = await db.collection('exams').doc(examId).get();
+        if (doc.exists) {
+          const examData = doc.data();
+          setFormData({
+            subject: examData.subject,
+            examName: examData.name,
+            classroom: examData.classroom,
+            selectedDate: examData.date,
+            dateRange: {},
+            questions: examData.questions,
+            currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null },
+          });
+        }
+      } catch (error) {
+        Alert.alert('Error', 'No se pudo cargar el examen');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExamData();
+  }, [examId]);
+
   useFocusEffect(
     useCallback(() => {
       const onBackPress = () => {
-        navigation.navigate('Home');
+        navigation.navigate('ReviewGrades');
         return true;
       };
       const backHandler = BackHandler.addEventListener('hardwareBackPress', onBackPress);
-      const timer = setTimeout(() => setInitialLoading(false), 1500);
-      return () => {
-        backHandler.remove();
-        clearTimeout(timer);
-      };
+      return () => backHandler.remove();
     }, [navigation]),
   );
 
@@ -133,17 +157,13 @@ const ScheduleExamScreen = () => {
       '¿Estás seguro de que quieres eliminar esta pregunta?',
       [
         { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: () => {
-            setFormData(prev => {
-              const newQuestions = [...prev.questions];
-              newQuestions.splice(index, 1);
-              return { ...prev, questions: newQuestions };
-            });
-          },
-        },
+        { text: 'Eliminar', style: 'destructive', onPress: () => {
+          setFormData(prev => {
+            const newQuestions = [...prev.questions];
+            newQuestions.splice(index, 1);
+            return { ...prev, questions: newQuestions };
+          });
+        }},
       ],
     );
   };
@@ -178,7 +198,7 @@ const ScheduleExamScreen = () => {
     setModalVisible(false);
   };
 
-  const saveNewExam = async () => {
+  const updateExam = async () => {
     if (!formData.subject || !formData.examName || !formData.classroom || !formData.selectedDate || formData.questions.length === 0) {
       Alert.alert('Error', 'Completa todos los campos y agrega al menos una pregunta');
       return;
@@ -186,18 +206,18 @@ const ScheduleExamScreen = () => {
 
     setLoading(true);
     try {
-      await db.collection('exams').add({
+      await db.collection('exams').doc(examId).update({
         subject: formData.subject,
         name: formData.examName,
         classroom: formData.classroom,
         date: formData.selectedDate,
         questions: formData.questions,
-        createdAt: firebaseInstance.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebaseInstance.firestore.FieldValue.serverTimestamp(),
       });
-      Alert.alert('Éxito', 'Examen creado correctamente');
-      navigation.navigate('Home');
+      Alert.alert('Éxito', 'Examen actualizado correctamente');
+      navigation.navigate('ReviewGrades');
     } catch (error) {
-      Alert.alert('Error', 'Error al guardar el examen');
+      Alert.alert('Error', 'Error al actualizar el examen');
     } finally {
       setLoading(false);
     }
@@ -208,10 +228,10 @@ const ScheduleExamScreen = () => {
       <html>
         <head>
           <style>
-            body { font-family: Arial; padding: 15px; }
-            h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 15px; }
-            .question { margin-bottom: 13px; }
+            body { font-family: Arial; padding: 20px; }
+            h1 { color: #f78219; text-align: center; }
+            .info { margin-bottom: 20px; }
+            .question { margin-bottom: 15px; }
             .correct { color: #4CAF50; font-weight: bold; }
           </style>
         </head>
@@ -247,11 +267,11 @@ const ScheduleExamScreen = () => {
       <html>
         <head>
           <style>
-            body { font-family: Arial; padding: 15px; }
-            h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 15px; }
-            .question { margin-bottom: 13px; }
-            .options { margin-left: 15px; }
+            body { font-family: Arial; padding: 20px; }
+            h1 { color: #f78219; text-align: center; }
+            .info { margin-bottom: 20px; }
+            .question { margin-bottom: 15px; }
+            .options { margin-left: 20px; }
           </style>
         </head>
         <body>
@@ -344,13 +364,9 @@ const ScheduleExamScreen = () => {
     },
   };
 
-  if (initialLoading) {
+  if (loading && !formData.examName) {
     return (
-      <ImageBackground
-        source={require('../../../assets/home-background.png')}
-        style={styles.background}
-        resizeMode="cover"
-      >
+      <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
         <View style={styles.overlay} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#f78219" />
@@ -360,24 +376,16 @@ const ScheduleExamScreen = () => {
   }
 
   return (
-    <ImageBackground
-      source={require('../../../assets/home-background.png')}
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
       <View style={styles.overlay} />
       <View style={styles.headerWrapper}>
-        <Image
-          source={require('../../../assets/header.png')}
-          style={styles.headerImage}
-          resizeMode="contain"
-        />
+        <Image source={require('../../../assets/header.png')} style={styles.headerImage} resizeMode="contain" />
       </View>
 
       <ScrollView contentContainerStyle={styles.contentContainer}>
         <View style={styles.section}>
           <View style={styles.inputGroup}>
-            <Book1 size={18} color="#f78219" variant="Bold" style={styles.icon} />
+            <Book size={20} color="#f78219" variant="Bold" style={styles.icon} />
             <TextInput
               style={styles.input}
               placeholder="Materia"
@@ -388,7 +396,7 @@ const ScheduleExamScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <Book1 size={18} color="#f78219" variant="Bold" style={styles.icon} />
+            <Book size={20} color="#f78219" variant="Bold" style={styles.icon} />
             <TextInput
               style={styles.input}
               placeholder="Nombre del Examen"
@@ -399,7 +407,7 @@ const ScheduleExamScreen = () => {
           </View>
 
           <View style={styles.inputGroup}>
-            <DocumentText size={18} color="#f78219" variant="Bold" style={styles.icon} />
+            <DocumentText size={20} color="#f78219" variant="Bold" style={styles.icon} />
             <TextInput
               style={styles.input}
               placeholder="Salón a Aplicar"
@@ -412,7 +420,7 @@ const ScheduleExamScreen = () => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            <CalendarIcon size={16} color="#f78219" variant="Bold" /> Fecha del Examen
+            <CalendarIcon size={18} color="#f78219" variant="Bold" /> Fecha del Examen
           </Text>
           <View style={styles.calendarContainer}>
             <CalendarComponent
@@ -437,7 +445,7 @@ const ScheduleExamScreen = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preguntas ({formData.questions.length}/20)</Text>
           <TouchableOpacity style={styles.addButton} onPress={handleAddQuestion}>
-            <Add size={16} color="#f78219" variant="Bold" />
+            <Add size={20} color="#f78219" variant="Bold" />
             <Text style={styles.addButtonText}>Agregar Pregunta</Text>
           </TouchableOpacity>
 
@@ -447,10 +455,10 @@ const ScheduleExamScreen = () => {
                 <Text style={styles.questionText}>{i + 1}. {q.text}</Text>
                 <View style={styles.questionActions}>
                   <TouchableOpacity onPress={() => handleEditQuestion(i)}>
-                    <Edit2 size={16} color="#008f39" variant="Bold" style={styles.actionIcon} />
+                    <Edit2 size={18} color="#008f39" variant="Bold" style={styles.actionIcon} />
                   </TouchableOpacity>
                   <TouchableOpacity onPress={() => handleDeleteQuestion(i)}>
-                    <Trash size={16} color="#ff0000" variant="Bold" />
+                    <Trash size={18} color="#ff0000" variant="Bold" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -468,9 +476,9 @@ const ScheduleExamScreen = () => {
               <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={saveNewExam}
+                  onPress={updateExam}
                 >
-                  <Text style={styles.buttonText}>Guardar Examen</Text>
+                  <Text style={styles.buttonText}>Actualizar Examen</Text>
                 </TouchableOpacity>
               </Animated.View>
 
@@ -491,9 +499,9 @@ const ScheduleExamScreen = () => {
         <Animated.View style={{ transform: [{ scale: menuScaleValue }] }}>
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => navigation.navigate('ReviewGrades')}
           >
-            <Text style={styles.buttonText}>Menú Principal</Text>
+            <Text style={styles.buttonText}>Volver a Exámenes</Text>
           </TouchableOpacity>
         </Animated.View>
       </ScrollView>
@@ -506,7 +514,7 @@ const ScheduleExamScreen = () => {
                 {formData.currentQuestion.editingIndex !== null ? 'Editar Pregunta' : 'Nueva Pregunta'}
               </Text>
               <Pressable onPress={() => setModalVisible(false)}>
-                <CloseCircle size={20} color="#f78219" />
+                <CloseCircle size={24} color="#f78219" />
               </Pressable>
             </View>
 
@@ -548,4 +556,4 @@ const ScheduleExamScreen = () => {
   );
 };
 
-export default ScheduleExamScreen;
+export default EditExamScreen;

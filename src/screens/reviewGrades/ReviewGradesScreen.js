@@ -136,7 +136,7 @@ const ReviewGradesScreen = () => {
         <Animated.View style={[styles.menuButtonContainer, { transform: [{ scale: menuScaleValue }] }]}>
           <TouchableOpacity
             style={styles.menuButton}
-            onPress={() => navigation.goBack()}
+            onPress={() => navigation.navigate('Home')}  // Cambiado de navigation.goBack() a navigation.navigate('Home')
           >
             <Text style={styles.menuButtonText}>Menú Principal</Text>
           </TouchableOpacity>

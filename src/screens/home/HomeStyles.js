@@ -25,6 +25,7 @@ export default StyleSheet.create({
     width: '90%',
     alignItems: 'center',
     marginBottom: 25,
+    marginTop: -20,
   },
   menuTitle: {
     fontSize: 24,
@@ -93,7 +94,7 @@ export default StyleSheet.create({
   },
   logout: {
     flexDirection: 'row',
-    marginTop: 80,
+    marginTop: 95,
     alignItems: 'center',
     width: width * 0.9,
     height: 50,
@@ -101,7 +102,6 @@ export default StyleSheet.create({
     borderRadius: 25,
     borderWidth: 2,
     borderColor: '#f78219',
-    marginBottom: 60,
     justifyContent: 'center',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

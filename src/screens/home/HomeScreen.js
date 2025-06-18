@@ -81,19 +81,10 @@ const HomeScreen = () => {
   }, [scale, opacity, bottomScale, bottomOpacity]);
 
   return (
-    <ImageBackground
-      source={require('../../../assets/home-background.png')}
-      style={styles.background}
-      resizeMode="cover"
-      blurRadius={2}
-    >
+    <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
       <View style={styles.overlay} />
       <View style={styles.headerWrapper}>
-        <Image
-          source={require('../../../assets/header.png')}
-          style={styles.headerImage}
-          resizeMode="contain"
-        />
+        <Image source={require('../../../assets/header.png')} style={styles.headerImage} resizeMode="contain" />
       </View>
 
       <View style={styles.titleContainer}>

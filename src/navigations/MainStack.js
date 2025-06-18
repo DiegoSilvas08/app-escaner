@@ -5,12 +5,13 @@ import ScheduleExamScreen from '@/screens/scheduleExam/ScheduleExamScreen';
 import AnswerSheetScreen from '@/screens/answer/AnswerSheetScreen';
 import GradesScreen from '@/screens/grades/GradesScreen';
 import ReviewGradesScreen from '@/screens/reviewGrades/ReviewGradesScreen';
+import EditExamScreen from '@/screens/editExam/EditExamScreen';
 
 const Stack = createStackNavigator();
 
 const MainStack = () => {
   return (
-    <Stack.Navigator initialRouteName={'Home'}>
+    <Stack.Navigator initialRouteName="Home">
       <Stack.Screen
         name="Home"
         component={HomeScreen}
@@ -39,6 +40,11 @@ const MainStack = () => {
       <Stack.Screen
         name="ReviewGrades"
         component={ReviewGradesScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="EditExam"
+        component={EditExamScreen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>

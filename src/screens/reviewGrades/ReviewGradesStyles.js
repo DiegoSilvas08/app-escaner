@@ -14,6 +14,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     marginLeft: 15,
+    marginTop: -20,
   },
   headerImage: {
     width: width * 0.95,
@@ -125,7 +126,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 6,
-    marginBottom: 60,
+    marginBottom: 20,
   },
   menuButtonText: {
     color: '#fffde1',
