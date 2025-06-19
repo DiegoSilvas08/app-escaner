@@ -8,11 +8,11 @@ import {
   Animated,
   ActivityIndicator,
   Platform,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TickSquare, TaskSquare, Calendar, ArchiveBook } from 'iconsax-react-native';
 import RNFS from 'react-native-fs';
-import RNPrint from 'react-native-print';
 import Share from 'react-native-share';
 import { useAuth } from '@/hooks/AuthContext';
 import styles from './HomeStyles';
@@ -25,60 +25,82 @@ const HomeScreen = () => {
   const opacity = useRef(new Animated.Value(1)).current;
   const bottomScale = useRef(new Animated.Value(1)).current;
   const bottomOpacity = useRef(new Animated.Value(1)).current;
+  const logoutScale = useRef(new Animated.Value(1)).current;
+  const logoutOpacity = useRef(new Animated.Value(1)).current;
 
-  const onSignOut = async () => {
-    setLoading(true);
-    await signOut();
-    setLoading(false);
+  const handleSignOut = () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Estás seguro que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sí, cerrar sesión',
+          onPress: async () => {
+            setLoading(true);
+            await signOut();
+            setLoading(false);
+          },
+        },
+      ],
+      { cancelable: false },
+    );
   };
 
   const handlePdf = async () => {
-    const fileName = 'Hoja_de_respuestas.pdf';
+    try {
+      const fileName = 'Hoja_de_respuestas.pdf';
+      const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
 
-    const filePath = `${RNFS.DocumentDirectoryPath}/${fileName}`;
-    const exists = await RNFS.exists(filePath);
+      if (!await RNFS.exists(filePath)) {
+        const pdfData = await RNFS.readFileAssets(fileName, 'base64');
+        await RNFS.writeFile(filePath, pdfData, 'base64');
+      }
 
-    if (!exists) {
-      const pdfData = await RNFS.readFileAssets(fileName, 'base64');
-      await RNFS.writeFile(filePath, pdfData, 'base64');
+      await Share.open({
+        url: Platform.OS === 'android' ? `file://${filePath}` : filePath,
+        type: 'application/pdf',
+        failOnCancel: false,
+      });
+    } catch (error) {
+      console.error('Error al compartir PDF:', error);
     }
-
-    await Share.open({
-      url: Platform.OS === 'android' ? `file://${filePath}` : filePath,
-      type: 'application/pdf',
-      failOnCancel: false,
-    });
-
-    await RNPrint.print({ filePath });
   };
 
   useEffect(() => {
-    Animated.loop(
-      Animated.parallel([
+    const createAnimation = (animatedValue, toValue, delay = 0) => {
+      return Animated.loop(
         Animated.sequence([
-          Animated.timing(scale, { toValue: 1.03, duration: 1500, useNativeDriver: true }),
-          Animated.timing(scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+          Animated.delay(delay),
+          Animated.parallel([
+            Animated.timing(animatedValue.scale, { toValue: toValue.scale, duration: 1500, useNativeDriver: true }),
+            Animated.timing(animatedValue.opacity, { toValue: toValue.opacity, duration: 1500, useNativeDriver: true }),
+          ]),
+          Animated.parallel([
+            Animated.timing(animatedValue.scale, { toValue: 1, duration: 1500, useNativeDriver: true }),
+            Animated.timing(animatedValue.opacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
+          ]),
         ]),
-        Animated.sequence([
-          Animated.timing(opacity, { toValue: 0.95, duration: 1500, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        ]),
-      ]),
-    ).start();
+      );
+    };
 
-    Animated.loop(
-      Animated.parallel([
-        Animated.sequence([
-          Animated.timing(bottomScale, { toValue: 1.02, duration: 1500, delay: 300, useNativeDriver: true }),
-          Animated.timing(bottomScale, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        ]),
-        Animated.sequence([
-          Animated.timing(bottomOpacity, { toValue: 0.97, duration: 1500, delay: 300, useNativeDriver: true }),
-          Animated.timing(bottomOpacity, { toValue: 1, duration: 1500, useNativeDriver: true }),
-        ]),
-      ]),
-    ).start();
-  }, [scale, opacity, bottomScale, bottomOpacity]);
+    const topAnimation = createAnimation({ scale, opacity }, { scale: 1.03, opacity: 0.95 });
+    const bottomAnimation = createAnimation({ scale: bottomScale, opacity: bottomOpacity }, { scale: 1.02, opacity: 0.97 }, 300);
+    const logoutAnimation = createAnimation({ scale: logoutScale, opacity: logoutOpacity }, { scale: 1.02, opacity: 0.97 }, 600);
+
+    topAnimation.start();
+    bottomAnimation.start();
+    logoutAnimation.start();
+
+    return () => {
+      topAnimation.stop();
+      bottomAnimation.stop();
+      logoutAnimation.stop();
+    };
+  }, [bottomOpacity, bottomScale, logoutOpacity, logoutScale, opacity, scale]);
 
   return (
     <ImageBackground source={require('../../../assets/home-background.png')} style={styles.background} resizeMode="cover">
@@ -125,7 +147,6 @@ const HomeScreen = () => {
 
         <View style={styles.spacer} />
 
-
         <TouchableOpacity
           style={styles.bottomCard}
           onPress={handlePdf}
@@ -136,18 +157,20 @@ const HomeScreen = () => {
         </TouchableOpacity>
       </Animated.View>
 
-      <TouchableOpacity
-        style={styles.logout}
-        onPress={onSignOut}
-        activeOpacity={0.8}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fffde1" />
-        ) : (
-          <Text style={styles.logoutText}>Cerrar Sesión</Text>
-        )}
-      </TouchableOpacity>
+      <Animated.View style={{ transform: [{ scale: logoutScale }], opacity: logoutOpacity }}>
+        <TouchableOpacity
+          style={styles.logout}
+          onPress={handleSignOut}
+          activeOpacity={0.8}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fffde1" />
+          ) : (
+            <Text style={styles.logoutText}>Cerrar Sesión</Text>
+          )}
+        </TouchableOpacity>
+      </Animated.View>
     </ImageBackground>
   );
 };

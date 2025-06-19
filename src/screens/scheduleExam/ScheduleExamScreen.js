@@ -34,12 +34,15 @@ const ScheduleExamScreen = () => {
     classroom: '',
     selectedDate: '',
     dateRange: {},
+    startDate: null,
+    endDate: null,
     questions: [],
     currentQuestion: { text: '', options: ['', '', '', ''], correctAnswer: 0, editingIndex: null },
   });
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [selectingEndDate, setSelectingEndDate] = useState(false);
   const scaleValue = useMemo(() => new Animated.Value(1), []);
   const printScaleValue = useMemo(() => new Animated.Value(1), []);
   const menuScaleValue = useMemo(() => new Animated.Value(1), []);
@@ -72,24 +75,75 @@ const ScheduleExamScreen = () => {
   }, [scaleValue, printScaleValue, menuScaleValue]);
 
   const handleDateSelect = (date) => {
-    const startDate = new Date(date.dateString);
-    const endDate = new Date(startDate);
-    endDate.setDate(startDate.getDate() + 13);
-    const range = {};
-    let currentDate = new Date(startDate);
+    const selectedDate = new Date(date.dateString + 'T00:00:00');
 
-    while (currentDate <= endDate) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      range[dateStr] = { selected: true, selectedColor: '#f78219' };
-      currentDate.setDate(currentDate.getDate() + 1);
+    if (!selectingEndDate) {
+      setFormData(prev => ({
+        ...prev,
+        startDate: selectedDate,
+        endDate: null,
+        dateRange: {
+          [date.dateString]: {
+            selected: true,
+            selectedColor: '#f78219',
+            startingDay: true,
+            color: '#f78219',
+            textColor: 'white',
+          },
+        },
+        selectedDate: '',
+      }));
+      setSelectingEndDate(true);
+    } else {
+      const startDate = new Date(formData.startDate.toISOString().split('T')[0] + 'T00:00:00');
+      const endDate = selectedDate;
+
+      if (endDate < startDate) {
+        Alert.alert('Fecha inválida', 'La fecha final no puede ser anterior a la fecha inicial');
+        return;
+      }
+
+      const range = {};
+      let current = new Date(startDate);
+
+      while (current <= endDate) {
+        const currentStr = current.toISOString().split('T')[0];
+        const isStart = currentStr === startDate.toISOString().split('T')[0];
+        const isEnd = currentStr === endDate.toISOString().split('T')[0];
+
+        range[currentStr] = {
+          selected: true,
+          selectedColor: '#f78219',
+          color: isStart || isEnd ? '#f78219' : '#f8d5b9',
+          textColor: 'white',
+          ...(isStart && { startingDay: true }),
+          ...(isEnd && { endingDay: true }),
+        };
+
+        current.setDate(current.getDate() + 1);
+      }
+
+      const format = { year: 'numeric', month: 'long', day: 'numeric' };
+      setFormData(prev => ({
+        ...prev,
+        dateRange: range,
+        endDate,
+        selectedDate: `${startDate.toLocaleDateString('es-ES', format)} - ${endDate.toLocaleDateString('es-ES', format)}`,
+      }));
+      setSelectingEndDate(false);
     }
+  };
 
-    const format = { year: 'numeric', month: 'long', day: 'numeric' };
+
+  const resetDateSelection = () => {
     setFormData(prev => ({
       ...prev,
-      dateRange: range,
-      selectedDate: `${startDate.toLocaleDateString('es-ES', format)} - ${endDate.toLocaleDateString('es-ES', format)}`,
+      startDate: null,
+      endDate: null,
+      dateRange: {},
+      selectedDate: '',
     }));
+    setSelectingEndDate(false);
   };
 
   const handleInputChange = (field, value) => {
@@ -211,7 +265,7 @@ const ScheduleExamScreen = () => {
             body { font-family: Arial; padding: 13px; }
             h1 { color:rgb(0, 0, 0); text-align: center; }
             .info { margin-bottom: 13px; }
-            .question { margin-bottom: 13px; }
+            .question { margin-bottom: 13px; line-height: .5; }
             .correct { color: #4CAF50; font-weight: bold; }
           </style>
         </head>
@@ -250,8 +304,8 @@ const ScheduleExamScreen = () => {
             body { font-family: Arial; padding: 13px; }
             h1 { color:rgb(0, 0, 0); text-align: center; }
             .info { margin-bottom: 13px; }
-            .question { margin-bottom: 13px; }
-            .options { margin-left: 13px; }
+            .question { margin-bottom: 13px; line-height: .5; }
+            .options { margin-left: 13px; line-height: .5; }
           </style>
         </head>
         <body>
@@ -431,7 +485,19 @@ const ScheduleExamScreen = () => {
               )}
             />
           </View>
-          {formData.selectedDate && <Text style={styles.selectedDateText}>Seleccionado: {formData.selectedDate}</Text>}
+          {selectingEndDate && (
+            <Text style={styles.dateSelectionText}>
+              Selecciona la fecha final
+            </Text>
+          )}
+          {formData.selectedDate && (
+            <>
+              <Text style={styles.selectedDateText}>Rango seleccionado: {formData.selectedDate}</Text>
+              <TouchableOpacity onPress={resetDateSelection} style={styles.resetDateButton}>
+                <Text style={styles.resetDateButtonText}>Cambiar fechas</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         <View style={styles.section}>

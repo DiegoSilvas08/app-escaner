@@ -119,5 +119,4 @@ export default StyleSheet.create({
   spacer: {
     height: 20,
   },
-
 });

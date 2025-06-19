@@ -74,6 +74,23 @@ export default StyleSheet.create({
     color: '#666666',
     textAlign: 'center',
   },
+  dateSelectionText: {
+    marginTop: 8,
+    fontSize: 12,
+    color: '#f78219',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  resetDateButton: {
+    marginTop: 8,
+    padding: 6,
+    alignItems: 'center',
+  },
+  resetDateButtonText: {
+    color: '#f78219',
+    fontSize: 12,
+    fontWeight: '600',
+  },
   buttonContainer: {
     marginTop: 12,
     marginBottom: 12,
@@ -94,7 +111,7 @@ export default StyleSheet.create({
     marginTop: 8,
   },
   printButton: {
-    marginTop: 3,
+    marginTop: 4,
     height: 42,
     borderRadius: 21,
     backgroundColor: '#61af58',
