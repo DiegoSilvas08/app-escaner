@@ -259,32 +259,32 @@ const ScheduleExamScreen = () => {
 
   const generateAnswerKeyPDF = async () => {
     const htmlContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 13px; }
-            h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 13px; }
-            .question { margin-bottom: 13px; line-height: .5; }
-            .correct { color: #4CAF50; font-weight: bold; }
-          </style>
-        </head>
-        <body>
-          <h1>Clave de Respuestas - ${formData.examName}</h1>
-          <div class="info">
-            <p><strong>Materia:</strong> ${formData.subject}</p>
-            <p><strong>Salón:</strong> ${formData.classroom}</p>
-            <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial; padding: 13px; margin-top: 40px; margin-bottom: 40px; }
+          h1 { color:rgb(0, 0, 0); text-align: center; }
+          .info { margin-bottom: 13px; }
+          .question { margin-bottom: 13px; line-height: .5; }
+          .correct { color: #4CAF50; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <h1>Clave de Respuestas - ${formData.examName}</h1>
+        <div class="info">
+          <p><strong>Materia:</strong> ${formData.subject}</p>
+          <p><strong>Salón:</strong> ${formData.classroom}</p>
+          <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
+        </div>
+        ${formData.questions.map((q, i) => `
+          <div class="question">
+            <p><strong>${i + 1}.</strong> ${q.text}</p>
+            <p class="correct">Respuesta correcta: ${String.fromCharCode(65 + q.correctAnswer)}. ${q.options[q.correctAnswer]}</p>
           </div>
-          ${formData.questions.map((q, i) => `
-            <div class="question">
-              <p><strong>${i + 1}.</strong> ${q.text}</p>
-              <p class="correct">Respuesta correcta: ${String.fromCharCode(65 + q.correctAnswer)}. ${q.options[q.correctAnswer]}</p>
-            </div>
-          `).join('')}
-        </body>
-      </html>
-    `;
+        `).join('')}
+      </body>
+    </html>
+  `;
 
     const options = {
       html: htmlContent,
@@ -298,34 +298,34 @@ const ScheduleExamScreen = () => {
 
   const generateExamPDF = async () => {
     const htmlContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial; padding: 13px; }
-            h1 { color:rgb(0, 0, 0); text-align: center; }
-            .info { margin-bottom: 13px; }
-            .question { margin-bottom: 13px; line-height: .5; }
-            .options { margin-left: 13px; line-height: .5; }
-          </style>
-        </head>
-        <body>
-          <h1>${formData.examName}</h1>
-          <div class="info">
-            <p><strong>Materia:</strong> ${formData.subject}</p>
-            <p><strong>Salón:</strong> ${formData.classroom}</p>
-            <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
-          </div>
-          ${formData.questions.map((q, i) => `
-            <div class="question">
-              <p><strong>${i + 1}.</strong> ${q.text}</p>
-              <div class="options">
-                ${q.options.map((opt, j) => `<p>${String.fromCharCode(65 + j)}. ${opt}</p>`).join('')}
-              </div>
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial; padding: 13px; margin-top: 40px; margin-bottom: 40px; }
+          h1 { color:rgb(0, 0, 0); text-align: center; }
+          .info { margin-bottom: 13px; }
+          .question { margin-bottom: 13px; line-height: .5; }
+          .options { margin-left: 13px; line-height: .5; }
+        </style>
+      </head>
+      <body>
+        <h1>${formData.examName}</h1>
+        <div class="info">
+          <p><strong>Materia:</strong> ${formData.subject}</p>
+          <p><strong>Salón:</strong> ${formData.classroom}</p>
+          <p><strong>Fecha:</strong> ${formData.selectedDate}</p>
+        </div>
+        ${formData.questions.map((q, i) => `
+          <div class="question">
+            <p><strong>${i + 1}.</strong> ${q.text}</p>
+            <div class="options">
+              ${q.options.map((opt, j) => `<p>${String.fromCharCode(65 + j)}. ${opt}</p>`).join('')}
             </div>
-          `).join('')}
-        </body>
-      </html>
-    `;
+          </div>
+        `).join('')}
+      </body>
+    </html>
+  `;
 
     const options = {
       html: htmlContent,
@@ -412,7 +412,6 @@ const ScheduleExamScreen = () => {
       </ImageBackground>
     );
   }
-
   return (
     <ImageBackground
       source={require('../../../assets/home-background.png')}

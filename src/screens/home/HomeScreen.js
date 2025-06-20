@@ -142,7 +142,7 @@ const HomeScreen = () => {
           activeOpacity={0.8}
         >
           <ArchiveBook size={40} color="#fffde1" variant="Bold" />
-          <Text style={styles.bottomCardLabel}>Examenes y Calificaciones</Text>
+          <Text style={styles.bottomCardLabel}>Exámenes y Calificaciones</Text>
         </TouchableOpacity>
 
         <View style={styles.spacer} />
